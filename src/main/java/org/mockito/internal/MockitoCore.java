@@ -4,14 +4,26 @@
  */
 package org.mockito.internal;
 
+import static org.mockito.exceptions.Reporter.missingMethodInvocation;
+import static org.mockito.exceptions.Reporter.mocksHaveToBePassedToVerifyNoMoreInteractions;
+import static org.mockito.exceptions.Reporter.mocksHaveToBePassedWhenCreatingInOrder;
+import static org.mockito.exceptions.Reporter.notAMockPassedToVerify;
+import static org.mockito.exceptions.Reporter.notAMockPassedToVerifyNoMoreInteractions;
+import static org.mockito.exceptions.Reporter.notAMockPassedWhenCreatingInOrder;
+import static org.mockito.exceptions.Reporter.nullPassedToVerify;
+import static org.mockito.exceptions.Reporter.nullPassedToVerifyNoMoreInteractions;
+import static org.mockito.exceptions.Reporter.nullPassedWhenCreatingInOrder;
+import static org.mockito.internal.verification.VerificationModeFactory.noMoreInteractions;
+
+import java.util.Arrays;
+import java.util.List;
+
 import org.mockito.InOrder;
 import org.mockito.MockSettings;
 import org.mockito.MockingDetails;
-import org.mockito.exceptions.Reporter;
 import org.mockito.exceptions.misusing.NotAMockException;
 import org.mockito.internal.creation.MockSettingsImpl;
 import org.mockito.internal.invocation.finder.VerifiableInvocationsFinder;
-import org.mockito.internal.progress.IOngoingStubbing;
 import org.mockito.internal.progress.MockingProgress;
 import org.mockito.internal.progress.ThreadSafeMockingProgress;
 import org.mockito.internal.stubbing.InvocationContainer;
@@ -27,16 +39,14 @@ import org.mockito.internal.verification.api.VerificationDataInOrder;
 import org.mockito.internal.verification.api.VerificationDataInOrderImpl;
 import org.mockito.invocation.Invocation;
 import org.mockito.mock.MockCreationSettings;
-import org.mockito.stubbing.*;
+import org.mockito.stubbing.OngoingStubbing;
+import org.mockito.stubbing.Stubber;
+import org.mockito.stubbing.VoidMethodStubbable;
 import org.mockito.verification.VerificationMode;
-
-import java.util.Arrays;
-import java.util.List;
 
 @SuppressWarnings("unchecked")
 public class MockitoCore {
 
-    private final Reporter reporter = new Reporter();
     private final MockUtil mockUtil = new MockUtil();
     private final MockingProgress mockingProgress = new ThreadSafeMockingProgress();
 
@@ -48,7 +58,7 @@ public class MockitoCore {
         if (!MockSettingsImpl.class.isInstance(settings)) {
             throw new IllegalArgumentException(
                     "Unexpected implementation of '" + settings.getClass().getCanonicalName() + "'\n"
-                    + "At the moment, you cannot provide your own implementations that class.");
+                    + "At the moment, you cannot provide your own implementations of that class.");
         }
         MockSettingsImpl impl = MockSettingsImpl.class.cast(settings);
         MockCreationSettings<T> creationSettings = impl.confirm(typeToMock);
@@ -56,33 +66,26 @@ public class MockitoCore {
         mockingProgress.mockingStarted(mock, typeToMock);
         return mock;
     }
-    
-    public IOngoingStubbing stub() {
-        IOngoingStubbing stubbing = mockingProgress.pullOngoingStubbing();
-        if (stubbing == null) {
-            mockingProgress.reset();
-            reporter.missingMethodInvocation();
-        }
-        return stubbing;
-    }
-
-    public <T> DeprecatedOngoingStubbing<T> stub(T methodCall) {
-        mockingProgress.stubbingStarted();
-        return (DeprecatedOngoingStubbing) stub();
-    }
 
     public <T> OngoingStubbing<T> when(T methodCall) {
         mockingProgress.stubbingStarted();
-        return (OngoingStubbing) stub();
+        OngoingStubbing<T> stubbing = mockingProgress.pullOngoingStubbing();
+        if (stubbing == null) {
+            mockingProgress.reset();
+            throw missingMethodInvocation();
+        }
+        return stubbing;
     }
     
     public <T> T verify(T mock, VerificationMode mode) {
         if (mock == null) {
-            reporter.nullPassedToVerify();
-        } else if (!mockUtil.isMock(mock)) {
-            reporter.notAMockPassedToVerify(mock.getClass());
+            throw nullPassedToVerify();
+        } 
+        if (!mockUtil.isMock(mock)) {
+            throw notAMockPassedToVerify(mock.getClass());
         }
-        mockingProgress.verificationStarted(new MockAwareVerificationMode(mock, mode));
+        VerificationMode actualMode = this.mockingProgress.maybeVerifyLazily(mode);
+        mockingProgress.verificationStarted(new MockAwareVerificationMode(mock, actualMode));
         return mock;
     }
     
@@ -112,13 +115,13 @@ public class MockitoCore {
         for (Object mock : mocks) {
             try {
                 if (mock == null) {
-                    reporter.nullPassedToVerifyNoMoreInteractions();
+                    throw nullPassedToVerifyNoMoreInteractions();
                 }
                 InvocationContainer invocations = mockUtil.getMockHandler(mock).getInvocationContainer();
                 VerificationDataImpl data = new VerificationDataImpl(invocations, null);
-                VerificationModeFactory.noMoreInteractions().verify(data);
+                noMoreInteractions().verify(data);
             } catch (NotAMockException e) {
-                reporter.notAMockPassedToVerifyNoMoreInteractions();
+                throw notAMockPassedToVerifyNoMoreInteractions();
             }
         }
     }
@@ -132,19 +135,20 @@ public class MockitoCore {
     
     private void assertMocksNotEmpty(Object[] mocks) {
         if (mocks == null || mocks.length == 0) {
-            reporter.mocksHaveToBePassedToVerifyNoMoreInteractions();
+            throw mocksHaveToBePassedToVerifyNoMoreInteractions();
         }
     }
     
     public InOrder inOrder(Object... mocks) {
         if (mocks == null || mocks.length == 0) {
-            reporter.mocksHaveToBePassedWhenCreatingInOrder();
+            throw mocksHaveToBePassedWhenCreatingInOrder();
         }
         for (Object mock : mocks) {
             if (mock == null) {
-                reporter.nullPassedWhenCreatingInOrder();
-            } else if (!mockUtil.isMock(mock)) {
-                reporter.notAMockPassedWhenCreatingInOrder();
+                throw nullPassedWhenCreatingInOrder();
+            } 
+            if (!mockUtil.isMock(mock)) {
+                throw notAMockPassedWhenCreatingInOrder();
             }
         }
         return new InOrderImpl(Arrays.asList(mocks));
@@ -192,5 +196,4 @@ public class MockitoCore {
     public MockingDetails mockingDetails(Object toInspect) {
         return new DefaultMockingDetails(toInspect, new MockUtil());
     }
-
 }

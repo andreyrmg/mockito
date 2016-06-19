@@ -4,6 +4,9 @@
  */
 package org.mockito.internal.stubbing.defaultanswers;
 
+import static org.mockito.exceptions.Reporter.delegatedMethodDoesNotExistOnDelegate;
+import static org.mockito.exceptions.Reporter.delegatedMethodHasWrongReturnType;
+
 import java.io.Serializable;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
@@ -36,13 +39,13 @@ public class ForwardsInvocations implements Answer<Object>, Serializable {
             Method delegateMethod = getDelegateMethod(mockMethod);
             
             if (!compatibleReturnTypes(mockMethod.getReturnType(), delegateMethod.getReturnType())) {
-                new Reporter().delegatedMethodHasWrongReturnType(mockMethod, delegateMethod, invocation.getMock(), delegatedObject);
+                throw delegatedMethodHasWrongReturnType(mockMethod, delegateMethod, invocation.getMock(), delegatedObject);
             }
 
             Object[] rawArguments = ((Invocation) invocation).getRawArguments();
             result = delegateMethod.invoke(delegatedObject, rawArguments);
         } catch (NoSuchMethodException e) {
-            new Reporter().delegatedMethodDoesNotExistOnDelegate(mockMethod, invocation.getMock(), delegatedObject);
+            throw delegatedMethodDoesNotExistOnDelegate(mockMethod, invocation.getMock(), delegatedObject);
         } catch (InvocationTargetException e) {
             // propagate the original exception from the delegate
             throw e.getCause();

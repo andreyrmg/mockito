@@ -1,3 +1,97 @@
+### 2.0.62-beta (2016-06-17 12:26 UTC)
+
+* Authors: 1
+* Commits: 2
+  * 2: Rafael Winterhalter
+* No notable improvements. See the commits for detailed changes.
+
+### 2.0.61-beta (2016-06-17 11:19 UTC)
+
+* Authors: 3
+* Commits: 3
+  * 1: Andrey
+  * 1: Rafael Winterhalter
+  * 1: Tim van der Lippe
+* Improvements: 3
+  * Fixed #407 Vararg method call on mock object fails [(#412)](https://github.com/mockito/mockito/pull/412)
+  * Vararg method call on mock object fails when used org.mockito.AdditionalAnswers#delegatesTo [(#407)](https://github.com/mockito/mockito/issues/407)
+  * Lazily verify without calling collector.verify() [(#389)](https://github.com/mockito/mockito/pull/389)
+
+### 2.0.60-beta (2016-06-17 09:47 UTC)
+
+* Authors: 2
+* Commits: 2
+  * 1: Rafael Winterhalter
+  * 1: Christian Schwarz
+* Improvements: 2
+  * Fixes #426 Dropped class HandyReturnValues [(#431)](https://github.com/mockito/mockito/pull/431)
+  * Refactor instance based utility classes to static utility classes [(#426)](https://github.com/mockito/mockito/issues/426)
+
+### 2.0.59-beta (2016-06-16 12:20 UTC)
+
+* Authors: 1
+* Commits: 1
+  * 1: Christian Schwarz
+* Improvements: 1
+  * Fixes #426 Refactored InvocationMarker to a static utility class [(#432)](https://github.com/mockito/mockito/pull/432)
+
+### 2.0.58-beta (2016-06-15 23:41 UTC)
+
+* Authors: 1
+* Commits: 1
+  * 1: Roi Atalla
+* Improvements: 1
+  * Very tiny typo. [(#434)](https://github.com/mockito/mockito/pull/434)
+
+### 2.0.57-beta (2016-06-13 22:01 UTC)
+
+* Authors: 2
+* Commits: 2
+  * 1: Philipp Jardas
+  * 1: Rafael Winterhalter
+* Improvements: 1
+  * Added default answer for java.util.stream.Stream [(#429)](https://github.com/mockito/mockito/pull/429)
+
+### 2.0.56-beta (2016-06-13 07:26 UTC)
+
+* Authors: 1
+* Commits: 1
+  * 1: lloydjm77
+* Improvements: 2
+  * Fixes #312.  Added documentation in OngoingStubbing.thenThrow(). [(#381)](https://github.com/mockito/mockito/pull/381)
+  * ThrowsExceptionClass is urealiable - exception doesn't containt stack trace [(#312)](https://github.com/mockito/mockito/issues/312)
+
+### 2.0.55-beta (2016-06-12 23:41 UTC)
+
+* Authors: 3
+* Commits: 7
+  * 4: Rafael Winterhalter
+  * 2: Christian Schwarz
+  * 1: Philipp Jardas
+* Improvements: 2
+  * Refactored class Reporter to a static utillity [(#427)](https://github.com/mockito/mockito/pull/427)
+  * Mock returning java.util.Optional should return Optional.empty() by default (Java 8) [(#191)](https://github.com/mockito/mockito/issues/191)
+
+### 2.0.54-beta (2016-05-27 18:52 UTC)
+
+* Authors: 1
+* Commits: 1
+  * 1: Christian Schwarz
+* Improvements: 2
+  * Fixes #374 Removed deprecated classes and methods [(#404)](https://github.com/mockito/mockito/pull/404)
+  * Remove deprecated API from Mockito 2  [(#374)](https://github.com/mockito/mockito/issues/374)
+
+### 2.0.53-beta (2016-05-17 20:34 UTC)
+
+* Authors: 3
+* Commits: 4
+  * 2: Tim van der Lippe
+  * 1: Pascal Schumacher
+  * 1: Krzysztof Wolny
+* Improvements: 2
+  * Fixed method name to verifyNoMoreInteractions [(#413)](https://github.com/mockito/mockito/pull/413)
+  * correct package declaration of VerificationWithDescriptionTest [(#382)](https://github.com/mockito/mockito/pull/382)
+
 ### 2.0.52-beta (2016-04-23 01:33 UTC)
 
 * Authors: 1

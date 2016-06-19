@@ -5,32 +5,22 @@
 
 package org.mockito.internal.stubbing.defaultanswers;
 
-import static org.mockito.Mockito.mock;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.LinkedHashMap;
-import java.util.LinkedHashSet;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.SortedMap;
-import java.util.SortedSet;
-import java.util.TreeMap;
-import java.util.TreeSet;
+import org.junit.Assume;
 import org.junit.Test;
 import org.mockito.invocation.Invocation;
 import org.mockitoutil.TestBase;
 
+import java.util.*;
+
+import static org.mockito.Mockito.mock;
+
 @SuppressWarnings("unchecked")
 public class ReturnsEmptyValuesTest extends TestBase {
 
-    ReturnsEmptyValues values = new ReturnsEmptyValues();
+    private final ReturnsEmptyValues values = new ReturnsEmptyValues();
 
-    @Test public void should_return_empty_collections_or_null_for_non_collections() {
+    @Test
+    public void should_return_empty_collections_or_null_for_non_collections() {
         assertTrue(((Collection) values.returnValueFor(Collection.class)).isEmpty());
 
         assertTrue(((Set) values.returnValueFor(Set.class)).isEmpty());
@@ -57,7 +47,8 @@ public class ReturnsEmptyValuesTest extends TestBase {
         assertFalse(((Iterable) values.returnValueFor(Iterable.class)).iterator().hasNext());
     }
 
-    @Test public void should_return_primitive() {
+    @Test
+    public void should_return_primitive() {
         assertEquals(false, values.returnValueFor(Boolean.TYPE));
         assertEquals((char) 0, values.returnValueFor(Character.TYPE));
         assertEquals((byte) 0, values.returnValueFor(Byte.TYPE));
@@ -68,20 +59,23 @@ public class ReturnsEmptyValuesTest extends TestBase {
         assertEquals(0D, values.returnValueFor(Double.TYPE));
     }
 
-    @Test public void should_return_non_zero_for_compareTo_method() {
-        //given
+    @Test
+    public void should_return_non_zero_for_compareTo_method() {
+        //
+        // given
         Date d = mock(Date.class);
         d.compareTo(new Date());
         Invocation compareTo = this.getLastInvocation();
 
         //when
         Object result = values.answer(compareTo);
-        
+
         //then
         assertTrue(result != (Object) 0);
     }
 
-    @Test public void should_return_zero_if_mock_is_compared_to_itself() {
+    @Test
+    public void should_return_zero_if_mock_is_compared_to_itself() {
         //given
         Date d = mock(Date.class);
         d.compareTo(d);
@@ -92,6 +86,50 @@ public class ReturnsEmptyValuesTest extends TestBase {
 
         //then
         assertEquals(0, result);
+    }
+
+    @Test
+    public void should_return_empty_optional() throws Exception {
+        Class<?> streamType = getClassOrSkipTest("java.util.stream.Stream");
+
+        //given
+        Object stream = mock(streamType);
+        Object optional = streamType.getMethod("findAny").invoke(stream);
+        assertNotNull(optional);
+        assertFalse((Boolean) Class.forName("java.util.Optional").getMethod("isPresent").invoke(optional));
+
+        Invocation findAny = this.getLastInvocation();
+
+        //when
+        Object result = values.answer(findAny);
+
+        //then
+        assertEquals(optional, result);
+    }
+
+    @Test
+    public void should_return_empty_stream() throws Exception {
+        // given
+        Class<?> streamType = getClassOrSkipTest("java.util.stream.Stream");
+
+        // when
+        Object stream = values.returnValueFor(streamType);
+        long count = (Long) streamType.getMethod("count").invoke(stream);
+
+        // then
+        assertEquals("count of empty Stream", 0L, count);
+    }
+
+    /**
+     * Tries to load the given class. If the class is not found, the complete test is skipped.
+     */
+    private Class<?> getClassOrSkipTest(String className) {
+        try {
+            return Class.forName(className);
+        } catch (ClassNotFoundException e) {
+            Assume.assumeNoException("JVM does not support " + className, e);
+            return null;
+        }
     }
 
 }
