@@ -5,9 +5,8 @@
 package org.mockito.internal.matchers;
 
 import org.mockito.ArgumentMatcher;
-import org.mockito.exceptions.Reporter;
 
-import static org.mockito.exceptions.Reporter.noArgumentValueWasCaptured;
+import static org.mockito.internal.exceptions.Reporter.noArgumentValueWasCaptured;
 
 import java.io.Serializable;
 import java.util.LinkedList;

@@ -1,6 +1,5 @@
 package org.mockito.internal.creation.bytebuddy;
 
-import org.mockito.exceptions.Reporter;
 import org.mockito.internal.debugging.LocationImpl;
 import org.mockito.internal.exceptions.VerificationAwareInvocation;
 import org.mockito.internal.exceptions.stacktrace.ConditionalStackTraceFilter;
@@ -11,7 +10,7 @@ import org.mockito.invocation.Invocation;
 import org.mockito.invocation.Location;
 import org.mockito.invocation.StubInfo;
 
-import static org.mockito.exceptions.Reporter.cannotCallAbstractRealMethod;
+import static org.mockito.internal.exceptions.Reporter.cannotCallAbstractRealMethod;
 
 import java.io.Serializable;
 import java.lang.reflect.Method;
@@ -70,7 +69,7 @@ class InterceptedInvocation implements Invocation, VerificationAwareInvocation {
     }
 
     @Override
-    public Class getRawReturnType() {
+    public Class<?> getRawReturnType() {
         return mockitoMethod.getReturnType();
     }
 
@@ -115,8 +114,9 @@ class InterceptedInvocation implements Invocation, VerificationAwareInvocation {
     }
 
     @Override
+    @SuppressWarnings("unchecked")
     public <T> T getArgument(int index) {
-        return (T)arguments[index];
+        return (T) arguments[index];
     }
 
     @Override
@@ -129,6 +129,7 @@ class InterceptedInvocation implements Invocation, VerificationAwareInvocation {
 
     @Override
     public int hashCode() {
+        //TODO SF we need to provide hash code implementation so that there are no unexpected, slight perf issues
         return 1;
     }
 
@@ -152,9 +153,9 @@ class InterceptedInvocation implements Invocation, VerificationAwareInvocation {
     }
 
 
-    public static interface SuperMethod extends Serializable {
+    public interface SuperMethod extends Serializable {
 
-        static enum IsIllegal implements SuperMethod {
+        enum IsIllegal implements SuperMethod {
 
             INSTANCE;
 
@@ -169,7 +170,7 @@ class InterceptedInvocation implements Invocation, VerificationAwareInvocation {
             }
         }
 
-        static class FromCallable implements SuperMethod {
+        class FromCallable implements SuperMethod {
 
             private static final long serialVersionUID = 47957363950483625L;
 

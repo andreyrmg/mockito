@@ -5,14 +5,6 @@
 
 package org.mockitousage.matchers;
 
-import static org.mockito.AdditionalMatchers.*;
-import static org.mockito.Matchers.*;
-import static org.mockito.Mockito.*;
-
-import java.math.BigDecimal;
-import java.util.HashMap;
-import java.util.List;
-
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Matchers;
@@ -21,6 +13,17 @@ import org.mockito.exceptions.verification.WantedButNotInvoked;
 import org.mockito.exceptions.verification.junit.ArgumentsAreDifferent;
 import org.mockitousage.IMethods;
 import org.mockitoutil.TestBase;
+
+import java.math.BigDecimal;
+import java.util.HashMap;
+import java.util.List;
+
+import static junit.framework.TestCase.*;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.AdditionalMatchers.*;
+import static org.mockito.AdditionalMatchers.eq;
+import static org.mockito.Matchers.eq;
+import static org.mockito.Mockito.*;
 
 
 @SuppressWarnings("unchecked")
@@ -284,7 +287,7 @@ public class MatchersTest extends TestBase {
             verify(mock).oneArray(aryEq(nullArray));
             fail();
         } catch (WantedButNotInvoked e) {
-            assertContains("oneArray(null)", e.getMessage());
+            assertThat(e).hasMessageContaining("oneArray(null)");
         }
     }
 
@@ -306,7 +309,7 @@ public class MatchersTest extends TestBase {
     
     @Test(expected=ArgumentsAreDifferent.class)
     public void arrayEqualsShouldThrowArgumentsAreDifferentExceptionForNonMatchingArguments() {        
-        List list = Mockito.mock(List.class);
+        List<Object> list = Mockito.mock(List.class);
         
         list.add("test"); // testing fix for issue 20
         list.contains(new Object[] {"1"});
@@ -417,6 +420,27 @@ public class MatchersTest extends TestBase {
     }
 
     @Test
+    public void nullMatcherForPrimitiveWrappers() {
+        when(mock.forBoolean(isNull(Boolean.class))).thenReturn("ok");
+        when(mock.forInteger(isNull(Integer.class))).thenReturn("ok");
+        when(mock.forLong(isNull(Long.class))).thenReturn("ok");
+        when(mock.forByte(isNull(Byte.class))).thenReturn("ok");
+        when(mock.forShort(isNull(Short.class))).thenReturn("ok");
+        when(mock.forCharacter(isNull(Character.class))).thenReturn("ok");
+        when(mock.forDouble(isNull(Double.class))).thenReturn("ok");
+        when(mock.forFloat(isNull(Float.class))).thenReturn("ok");
+
+        assertEquals("ok", mock.forBoolean(null));
+        assertEquals("ok", mock.forInteger(null));
+        assertEquals("ok", mock.forLong(null));
+        assertEquals("ok", mock.forByte(null));
+        assertEquals("ok", mock.forShort(null));
+        assertEquals("ok", mock.forCharacter(null));
+        assertEquals("ok", mock.forDouble(null));
+        assertEquals("ok", mock.forFloat(null));
+    }
+
+    @Test
     public void notNullMatcher() {
         when(mock.threeArgumentMethod(eq(1), notNull(), eq(""))).thenReturn("1");
         when(mock.threeArgumentMethod(eq(1), not(isNotNull()), eq(""))).thenReturn("2");
@@ -501,7 +525,7 @@ public class MatchersTest extends TestBase {
             verify(mock).oneArg(eq(1.0D, 0.1D));
             fail();
         } catch (WantedButNotInvoked e) {
-            assertContains("eq(1.0, 0.1)", e.getMessage());
+            assertThat(e).hasMessageContaining("eq(1.0, 0.1)");
         }
     }
     

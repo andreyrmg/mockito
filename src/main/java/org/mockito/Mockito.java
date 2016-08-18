@@ -4,6 +4,7 @@
  */
 package org.mockito;
 
+import org.mockito.internal.framework.DefaultMockitoFramework;
 import org.mockito.internal.MockitoCore;
 import org.mockito.internal.creation.MockSettingsImpl;
 import org.mockito.internal.debugging.MockitoDebuggerImpl;
@@ -65,6 +66,9 @@ import org.mockito.junit.*;
  *      <a href="#32">33. (new) Mockito JUnit rule (Since 1.10.17)</a><br/>
  *      <a href="#34">34. (new) Switch <em>on</em> or <em>off</em> plugins (Since 1.10.15)</a><br/>
  *      <a href="#35">35. (new) Custom verification failure message (Since 2.0.0)</a><br/>
+ *      <a href="#36">36. (new) Java 8 Lambda Matcher Support (Since 2.0.0)</a><br/>
+ *      <a href="#37">37. (new) Java 8 Custom Answer Support (Since 2.0.0)</a><br/>
+ *
  * </b>
  *
  * <h3 id="0">0. <a class="meaningful_link" href="#verification">Migrating to 2.0</a></h3>
@@ -180,11 +184,15 @@ import org.mockito.junit.*;
  *
  * //<b>you can also verify using an argument matcher</b>
  * verify(mockedList).get(anyInt());
+ *
+ * //<b>argument matchers can also be written as Java 8 Lambdas</b>
+ * verify(mockedList).add(someString -> someString.length() > 5);
+ *
  * </code></pre>
  *
  * <p>
  * Argument matchers allow flexible verification or stubbing.
- * {@link Matchers Click here to see} more built-in matchers
+ * {@link ArgumentMatchers Click here} {@link org.mockito.hamcrest.MockitoHamcrest or here} to see more built-in matchers
  * and examples of <b>custom argument matchers / hamcrest matchers</b>.
  * <p>
  * For information solely on <b>custom argument matchers</b> check out javadoc for {@link ArgumentMatcher} class.
@@ -464,9 +472,6 @@ import org.mockito.junit.*;
  * Stubbing void methods requires a different approach from {@link Mockito#when(Object)} because the compiler does not
  * like void methods inside brackets...
  * <p>
- * {@link Mockito#doThrow(Throwable...)} replaces the {@link Mockito#stubVoid(Object)} method for stubbing voids.
- * The main reason is improved readability and consistency with the family of <code>doAnswer()</code> methods.
- * <p>
  * Use <code>doThrow()</code> when you want to stub a void method with an exception:
  * <pre class="code"><code class="java">
  *   doThrow(new RuntimeException()).when(mockedList).clear();
@@ -474,6 +479,7 @@ import org.mockito.junit.*;
  *   //following throws RuntimeException:
  *   mockedList.clear();
  * </code></pre>
+ * </p>
  *
  * <p>
  * You can use <code>doThrow()</code>, <code>doAnswer()</code>, <code>doNothing()</code>, <code>doReturn()</code>
@@ -668,8 +674,7 @@ import org.mockito.junit.*;
  * <p>
  * The only reason we added <code>reset()</code> method is to
  * make it possible to work with container-injected mocks.
- * See issue 55 (<a href="http://code.google.com/p/mockito/issues/detail?id=55">here</a>)
- * or FAQ (<a href="http://code.google.com/p/mockito/wiki/FAQ">here</a>).
+ * For more information see FAQ (<a href="https://github.com/mockito/mockito/wiki/FAQ">here</a>).
  * <p>
  * <b>Don't harm yourself.</b> <code>reset()</code> in the middle of the test method is a code smell (you're probably testing too much).
  * <pre class="code"><code class="java">
@@ -687,7 +692,7 @@ import org.mockito.junit.*;
  * <h3 id="18">18. <a class="meaningful_link" href="#framework_validation">Troubleshooting & validating framework usage</a> (Since 1.8.0)</h3>
  *
  * First of all, in case of any trouble, I encourage you to read the Mockito FAQ:
- * <a href="http://code.google.com/p/mockito/wiki/FAQ">http://code.google.com/p/mockito/wiki/FAQ</a>
+ * <a href="https://github.com/mockito/mockito/wiki/FAQ">https://github.com/mockito/mockito/wiki/FAQ</a>
  * <p>
  * In case of questions you may also post to mockito mailing list:
  * <a href="http://groups.google.com/group/mockito">http://groups.google.com/group/mockito</a>
@@ -797,7 +802,7 @@ import org.mockito.junit.*;
  * interaction rather than fails immediately if had not already happened. May be useful for testing in concurrent
  * conditions.
  * <p>
- * It feels this feature should be used rarely - figure out a better way of testing your multi-threaded system.
+ * This feature should be used rarely - figure out a better way of testing your multi-threaded system.
  * <p>
  * Not yet implemented to work with InOrder verification.
  * <p>
@@ -1042,7 +1047,7 @@ import org.mockito.junit.*;
  *
  * <h3 id="33">33. <a class="meaningful_link" href="#mockito_junit_rule">(new) Mockito JUnit rule (Since 1.10.17)</a></h3>
  *
- * Mockito now offers a JUnit rule. Until now in JUnit there was two wasy to initialize fields annotated by Mockito annotations
+ * Mockito now offers a JUnit rule. Until now in JUnit there were two ways to initialize fields annotated by Mockito annotations
  * such as <code>&#064;{@link Mock}</code>, <code>&#064;{@link Spy}</code>, <code>&#064;{@link InjectMocks}</code>, etc.
  *
  * <ul>
@@ -1087,11 +1092,123 @@ import org.mockito.junit.*;
  * verify(mock, times(2).description("someMethod should be called twice")).someMethod();
  * </code></pre>
  *
+ * <h3 id="36">36. <a class="meaningful_link" href="#Java_8_Lambda_Matching">Java 8 Lambda Matcher Support</a> (Since 2.0.0)</h3>
+ * <p>
+ * You can use Java 8 lambda expressions with {@link ArgumentMatcher} to reduce the dependency on {@link ArgumentCaptor}.
+ * If you need to verify that the input to a function call on a mock was correct, then you would normally
+ * use the {@link ArgumentCaptor} to find the operands used and then do subsequent assertions on them. While
+ * for complex examples this can be useful, it's also long-winded.<p>
+ * Writing a lambda to express the match is quite easy. The argument to your function, when used in conjunction
+ * with argThat, will be passed to the ArgumentMatcher as a strongly typed object, so it is possible
+ * to do anything with it.
+ * <p>
+ * Examples:
+ * <p>
+ * <pre class="code"><code class="java">
+ *
+ * // verify a list only had strings of a certain length added to it
+ * // note - this will only compile under Java 8
+ * verify(list, times(2)).add(argThat(string -> string.length() < 5));
+ *
+ * // Java 7 equivalent - not as neat
+ * verify(list, times(2)).add(argThat(new ArgumentMatcher<String>(){
+ *     public boolean matches(String arg) {
+ *         return arg.length() < 5;
+ *     }
+ * }));
+ *
+ * // more complex Java 8 example - where you can specify complex verification behaviour functionally
+ * verify(target, times(1)).receiveComplexObject(argThat(obj -> obj.getSubObject().get(0).equals("expected")));
+ *
+ * // this can also be used when defining the behaviour of a mock under different inputs
+ * // in this case if the input list was fewer than 3 items the mock returns null
+ * when(mock.someMethod(argThat(list -> list.size()<3))).willReturn(null);
+ * </code></pre>
+ *
+ * <h3 id="37">37. <a class="meaningful_link" href="#Java_8_Custom_Answers">Java 8 Custom Answer Support</a> (Since 2.0.0)</h3>
+ * <p>
+ * As the {@link Answer} interface has just one method it is already possible to implement it in Java 8 using
+ * a lambda expression for very simple situations. The more you need to use the parameters of the method call,
+ * the more you need to typecast the arguments from {@link org.mockito.invocation.InvocationOnMock}.
+ *
+ * <p>
+ * Examples:
+ * <p>
+ * <pre class="code"><code class="java">
+ * // answer by returning 12 every time
+ * doAnswer(invocation -> 12).when(mock).doSomething();
+ *
+ * // answer by using one of the parameters - converting into the right
+ * // type as your go - in this case, returning the length of the second string parameter
+ * // as the answer. This gets long-winded quickly, with casting of parameters.
+ * doAnswer(invocation -> ((String)invocation.getArgument(1)).length())
+ *     .when(mock).doSomething(anyString(), anyString(), anyString());
+ * </code></pre>
+ *
+ * For convenience it is possible to write custom answers/actions, which use the parameters to the method call,
+ * as Java 8 lambdas. Even in Java 7 and lower these custom answers based on a typed interface can reduce boilerplate.
+ * In particular, this approach will make it easier to test functions which use callbacks.
+ *
+ * The functions answer and answerVoid can be found in {@link AdditionalAnswers} to create the answer object
+ * using the interfaces in {@link org.mockito.internal.stubbing.answers.AnswerFunctionalInterfaces} support is provided
+ * for functions with up to 5 parameters
+ *
+ * <p>
+ * Examples:
+ * <p>
+ * <pre class="code"><code class="java">
+ *
+ * // Example interface to be mocked has a function like:
+ * void execute(String operand, Callback callback);
+ *
+ * // the example callback has a function and the class under test
+ * // will depend on the callback being invoked
+ * void receive(String item);
+ *
+ * // Java 8 - style 1
+ * doAnswer(AdditionalAnswers.<String,Callback>answerVoid((operand, callback) -> callback.receive("dummy"))
+ *     .when(mock).execute(anyString(), any(Callback.class));
+ *
+ * // Java 8 - style 2 - assuming static import of AdditionalAnswers
+ * doAnswer(answerVoid((String operand, Callback callback) -> callback.receive("dummy"))
+ *     .when(mock).execute(anyString(), any(Callback.class));
+ *
+ * // Java 8 - style 3 - where mocking function to is a static member of test class
+ * private static void dummyCallbackImpl(String operation, Callback callback) {
+ *     callback.receive("dummy");
+ * }
+ *
+ * doAnswer(answerVoid(TestClass::dummyCallbackImpl)
+ *     .when(mock).execute(anyString(), any(Callback.class));
+ *
+ * // Java 7
+ * doAnswer(answerVoid(new AnswerFunctionalInterfaces.VoidAnswer2<String, Callback>() {
+ *     public void answer(String operation, Callback callback) {
+ *         callback.receive("dummy");
+ *     }})).when(mock).execute(anyString(), any(Callback.class));
+ *
+ * // returning a value is possible with the answer() function
+ * // and the non-void version of the functional interfaces
+ * // so if the mock interface had a method like
+ * boolean isSameString(String input1, String input2);
+ *
+ * // this could be mocked
+ * // Java 8
+ * doAnswer(AdditionalAnswers.<Boolean,String,String>answer((input1, input2) -> input1.equals(input2))))
+ *     .when(mock).execute(anyString(), anyString());
+ *
+ * // Java 7
+ * doAnswer(answer(new AnswerFunctionalInterfaces.Answer2<String, String, String>() {
+ *     public String answer(String input1, String input2) {
+ *         return input1 + input2;
+ *     }})).when(mock).execute(anyString(), anyString());
+ * </code></pre>
+ *
  * TODO rework the documentation, write about hamcrest.
  *
  */
 @SuppressWarnings("unchecked")
-public class Mockito extends Matchers {
+public class Mockito extends ArgumentMatchers {
 
     static final MockitoCore MOCKITO_CORE = new MockitoCore();
 
@@ -1694,8 +1811,7 @@ public class Mockito extends Matchers {
      * <p>
      * The only reason we added <code>reset()</code> method is to
      * make it possible to work with container-injected mocks.
-     * See issue 55 (<a href="http://code.google.com/p/mockito/issues/detail?id=55">here</a>)
-     * or FAQ (<a href="http://code.google.com/p/mockito/wiki/FAQ">here</a>).
+     * For more information see the FAQ (<a href="https://github.com/mockito/mockito/wiki/FAQ">here</a>).
      * <p>
      * <b>Don't harm yourself.</b> <code>reset()</code> in the middle of the test method is a code smell (you're probably testing too much).
      * <pre class="code"><code class="java">
@@ -2083,9 +2199,9 @@ public class Mockito extends Matchers {
      * <p>
      * Also, you can create InOrder object passing only mocks that are relevant for in-order verification.
      * <p>
-     * <code>InOrder</code> verification is 'greedy'. You will hardly every notice it but
-     * if you want to find out more search for 'greedy' on the Mockito
-     * <a href="http://code.google.com/p/mockito/w/list">wiki pages</a>.
+     * <code>InOrder</code> verification is 'greedy', but you will hardly ever notice it.
+     * If you want to find out more, read
+     * <a href="https://github.com/mockito/mockito/wiki/Greedy-algorithm-of-verfication-InOrder">this wiki page</a>.
      * <p>
      * As of Mockito 1.8.4 you can verifyNoMoreInvocations() in order-sensitive way. Read more: {@link InOrder#verifyNoMoreInteractions()}
      * <p>
@@ -2298,9 +2414,7 @@ public class Mockito extends Matchers {
      * and then later fail. In that case, timeout would pass as soon as times(2) passes, whereas after would run until
      * times(2) failed, and then fail.
      * <p>
-     * It feels this feature should be used rarely - figure out a better way of testing your multi-threaded system
-     * <p>
-     * Not yet implemented to work with InOrder verification.
+     * This feature should be used rarely - figure out a better way of testing your multi-threaded system.
      * <pre class="code"><code class="java">
      *   //passes when someMethod() is called within given time span
      *   verify(mock, timeout(100)).someMethod();
@@ -2338,7 +2452,7 @@ public class Mockito extends Matchers {
      * which can pass and then later fail. In that case, timeout would pass as soon as times(2) passes, whereas after would
      * run the full time, which point it will fail, as times(2) has failed.
      * <p>
-     * It feels this feature should be used rarely - figure out a better way of testing your multi-threaded system
+     * This feature should be used rarely - figure out a better way of testing your multi-threaded system.
      * <p>
      * Not yet implemented to work with InOrder verification.
      * <pre class="code"><code class="java">
@@ -2369,7 +2483,7 @@ public class Mockito extends Matchers {
     }
 
     /**
-     * First of all, in case of any trouble, I encourage you to read the Mockito FAQ: <a href="http://code.google.com/p/mockito/wiki/FAQ">http://code.google.com/p/mockito/wiki/FAQ</a>
+     * First of all, in case of any trouble, I encourage you to read the Mockito FAQ: <a href="https://github.com/mockito/mockito/wiki/FAQ">https://github.com/mockito/mockito/wiki/FAQ</a>
      * <p>
      * In case of questions you may also post to mockito mailing list: <a href="http://groups.google.com/group/mockito">http://groups.google.com/group/mockito</a>
      * <p>
@@ -2465,10 +2579,20 @@ public class Mockito extends Matchers {
     }
 
     /**
-     * Helps debugging failing tests. Experimental - use at your own risk. We're not sure if this method will stay in public api.
+     * TODO 543 move to MockingDetails
      */
     @Deprecated
     static MockitoDebugger debug() {
         return new MockitoDebuggerImpl();
+    }
+
+    /**
+     * For advanced users or framework integrators. See {@link MockitoFramework} class.
+     *
+     * @since 2.*
+     */
+    @Incubating
+    public static MockitoFramework framework() {
+        return new DefaultMockitoFramework();
     }
 }

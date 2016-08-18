@@ -4,15 +4,6 @@
  */
 package org.mockitousage.stubbing;
 
-import static org.mockito.Matchers.anyString;
-import static org.mockito.Mockito.doAnswer;
-import static org.mockito.Mockito.doThrow;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
-
-import java.lang.reflect.Method;
-import java.util.Set;
-
 import org.junit.Test;
 import org.mockito.Mock;
 import org.mockito.invocation.InvocationOnMock;
@@ -20,7 +11,12 @@ import org.mockito.stubbing.Answer;
 import org.mockitousage.IMethods;
 import org.mockitoutil.TestBase;
 
-@SuppressWarnings({"unchecked"})
+import java.lang.reflect.Method;
+import java.util.Set;
+
+import static junit.framework.TestCase.*;
+import static org.mockito.Mockito.*;
+
 public class StubbingWithCustomAnswerTest extends TestBase {
     @Mock
     private IMethods mock;
@@ -41,7 +37,7 @@ public class StubbingWithCustomAnswerTest extends TestBase {
     @Test
     public void shouldAnswerWithThenAnswerAlias() throws Exception {
         RecordCall recordCall = new RecordCall();
-        Set mockedSet = when(mock(Set.class).isEmpty()).then(recordCall).getMock();
+        Set<?> mockedSet = (Set<?>) when(mock(Set.class).isEmpty()).then(recordCall).getMock();
 
         mockedSet.isEmpty();
 
@@ -117,7 +113,7 @@ public class StubbingWithCustomAnswerTest extends TestBase {
         assertEquals("assertions passed", mock.simpleMethod("test"));
     }
 
-    private static class RecordCall implements Answer {
+    private static class RecordCall implements Answer<Object> {
         private boolean called = false;
 
         public boolean isCalled() {

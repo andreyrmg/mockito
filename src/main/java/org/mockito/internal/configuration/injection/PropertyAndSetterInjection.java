@@ -5,9 +5,10 @@
 
 package org.mockito.internal.configuration.injection;
 
-import static org.mockito.exceptions.Reporter.cannotInitializeForInjectMocksAnnotation;
-import static org.mockito.exceptions.Reporter.fieldInitialisationThrewException;
+import static org.mockito.internal.exceptions.Reporter.cannotInitializeForInjectMocksAnnotation;
+import static org.mockito.internal.exceptions.Reporter.fieldInitialisationThrewException;
 import static org.mockito.internal.util.collections.Sets.newMockSafeHashSet;
+import static org.mockito.internal.util.reflection.SuperTypesLastSorter.sortSuperTypesLast;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
@@ -97,7 +98,7 @@ public class PropertyAndSetterInjection extends MockInjectionStrategy {
                 Throwable realCause = e.getCause().getCause();
                 throw fieldInitialisationThrewException(field, realCause);
             }
-            throw cannotInitializeForInjectMocksAnnotation(field.getName(), e);
+            throw cannotInitializeForInjectMocksAnnotation(field.getName(),e.getMessage());
         }
     }
 
@@ -133,6 +134,6 @@ public class PropertyAndSetterInjection extends MockInjectionStrategy {
         List<Field> declaredFields = Arrays.asList(awaitingInjectionClazz.getDeclaredFields());
         declaredFields = ListUtil.filter(declaredFields, notFinalOrStatic);
 
-        return new SuperTypesLastSorter().sort(declaredFields);
+        return sortSuperTypesLast(declaredFields);
     }
 }

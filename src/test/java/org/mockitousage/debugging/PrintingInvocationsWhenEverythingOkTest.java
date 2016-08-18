@@ -4,12 +4,14 @@
  */
 package org.mockitousage.debugging;
 
-import static org.mockito.BDDMockito.*;
-
 import org.junit.After;
 import org.junit.Test;
 import org.mockito.Mock;
 import org.mockitoutil.TestBase;
+
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.BDDMockito.given;
+import static org.mockito.BDDMockito.verify;
 
 public class PrintingInvocationsWhenEverythingOkTest extends TestBase {
 
@@ -43,13 +45,16 @@ public class PrintingInvocationsWhenEverythingOkTest extends TestBase {
     public void printInvocations() {
         String log = NewMockito.debug().printInvocations(mock, mockTwo);
         //asking
-        assertContains("giveMeSomeString(\"arg\")", log);
-        assertContains(".businessLogicWithAsking(", log);
+        assertThat(log)
+            .contains("giveMeSomeString(\"arg\")")
+            .contains(".businessLogicWithAsking(");
         //telling
-        assertContains("doSomething(\"foo\")", log);
-        assertContains(".businessLogicWithTelling(", log);
+        assertThat(log)
+            .contains("doSomething(\"foo\")")
+            .contains(".businessLogicWithTelling(");
         //stubbing
-        assertContains("giveMeSomeString(\"arg\")", log);
-        assertContains(".performStubbing(", log);
+        assertThat(log)
+            .contains("giveMeSomeString(\"arg\")")
+            .contains(".performStubbing(", log);
     }
 }

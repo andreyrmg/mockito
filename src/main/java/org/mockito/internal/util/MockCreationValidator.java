@@ -4,11 +4,11 @@
  */
 package org.mockito.internal.util;
 
-import static org.mockito.exceptions.Reporter.cannotMockClass;
-import static org.mockito.exceptions.Reporter.extraInterfacesCannotContainMockedType;
-import static org.mockito.exceptions.Reporter.mockedTypeIsInconsistentWithDelegatedInstanceType;
-import static org.mockito.exceptions.Reporter.mockedTypeIsInconsistentWithSpiedInstanceType;
-import static org.mockito.exceptions.Reporter.usingConstructorWithFancySerializable;
+import static org.mockito.internal.exceptions.Reporter.cannotMockClass;
+import static org.mockito.internal.exceptions.Reporter.extraInterfacesCannotContainMockedType;
+import static org.mockito.internal.exceptions.Reporter.mockedTypeIsInconsistentWithDelegatedInstanceType;
+import static org.mockito.internal.exceptions.Reporter.mockedTypeIsInconsistentWithSpiedInstanceType;
+import static org.mockito.internal.exceptions.Reporter.usingConstructorWithFancySerializable;
 
 import java.util.Collection;
 
@@ -18,10 +18,8 @@ import org.mockito.plugins.MockMaker.TypeMockability;
 @SuppressWarnings("unchecked")
 public class MockCreationValidator {
 
-    private final MockUtil mockUtil = new MockUtil();
-
     public void validateType(Class<?> classToMock) {
-        TypeMockability typeMockability = mockUtil.typeMockabilityOf(classToMock);
+        TypeMockability typeMockability = MockUtil.typeMockabilityOf(classToMock);
         if (!typeMockability.mockable()) {
             throw cannotMockClass(classToMock, typeMockability.nonMockableReason());
         }
@@ -32,7 +30,7 @@ public class MockCreationValidator {
             return;
         }
 
-        for (Class i : extraInterfaces) {
+        for (Class<?> i : extraInterfaces) {
             if (classToMock == i) {
                 throw extraInterfacesCannotContainMockedType(classToMock);
             }

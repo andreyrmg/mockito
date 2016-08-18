@@ -5,12 +5,6 @@
 
 package org.mockitousage.stacktrace;
 
-import static org.mockito.Matchers.*;
-import static org.mockito.Mockito.*;
-
-import java.util.LinkedList;
-import java.util.List;
-
 import org.junit.Before;
 import org.junit.Ignore;
 import org.junit.Test;
@@ -21,6 +15,11 @@ import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 import org.mockitousage.IMethods;
 import org.mockitoutil.TestBase;
+
+import java.util.LinkedList;
+import java.util.List;
+
+import static org.mockito.Mockito.*;
 
 @Ignore
 @RunWith(MockitoJUnitRunner.class)
@@ -190,7 +189,7 @@ public class ModellingDescriptiveMessagesTest extends TestBase {
     
     @Test
     public void shouldScreamWhenExtraInterfacesIsANullArray() {
-        mock(IMethods.class, withSettings().extraInterfaces((Class[]) null));
+        mock(IMethods.class, withSettings().extraInterfaces((Class<?>[]) null));
     }
 
     @Test

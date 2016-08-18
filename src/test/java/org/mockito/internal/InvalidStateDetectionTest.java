@@ -5,9 +5,6 @@
 
 package org.mockito.internal;
 
-import static org.mockito.Matchers.*;
-import static org.mockito.Mockito.*;
-
 import org.junit.After;
 import org.junit.Test;
 import org.mockito.Mock;
@@ -18,11 +15,14 @@ import org.mockito.exceptions.misusing.UnfinishedVerificationException;
 import org.mockitousage.IMethods;
 import org.mockitoutil.TestBase;
 
+import static junit.framework.TestCase.assertEquals;
+import static junit.framework.TestCase.fail;
+import static org.mockito.Mockito.*;
+
 /**
  * invalid state happens if:
  * 
  *    -unfinished stubbing
- *    -unfinished stubVoid
  *    -unfinished doReturn()
  *    -stubbing without actual method call
  *    -verify without actual method call
@@ -35,7 +35,6 @@ import org.mockitoutil.TestBase;
  *    -on verifyNoMoreInteractions
  *    -on verify in order
  *    -on stub
- *    -on stubVoid
  */
 @SuppressWarnings({"unchecked", "deprecation"})
 public class InvalidStateDetectionTest extends TestBase {
@@ -221,7 +220,7 @@ public class InvalidStateDetectionTest extends TestBase {
         }
     }
     
-    private void detectsAndCleansUp(DetectsInvalidState detector, Class expected) {
+    private void detectsAndCleansUp(DetectsInvalidState detector, Class<?> expected) {
         try {
             detector.detect(mock);
             fail("Should throw an exception");

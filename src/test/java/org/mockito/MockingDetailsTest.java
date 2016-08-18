@@ -9,6 +9,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
+import static junit.framework.TestCase.*;
 import static org.mockito.Mockito.mock;
 
 public class MockingDetailsTest extends TestBase {
@@ -20,7 +21,8 @@ public class MockingDetailsTest extends TestBase {
             add("remove");
             add("clear");
         }};
-        
+
+        @SuppressWarnings("unchecked")
         List<String> mockedList = (List<String>) mock(List.class);
         
         mockedList.add("one");
@@ -43,7 +45,7 @@ public class MockingDetailsTest extends TestBase {
 
     @Test
     public void should_handle_null_input() {
-        //TODO SF, decide how to handle it and ensure the there is a top level integ test for the mockingDetails().getInvocations()
+        //TODO 541, decide how to handle it and ensure the there is a top level integ test for the mockingDetails().getInvocations()
         //assertTrue(new MockitoCore().mockingDetails(null).getInvocations().isEmpty());
     }
 }

@@ -10,7 +10,6 @@ import org.mockito.Spy;
 import org.mockito.exceptions.base.MockitoException;
 import org.mockito.internal.util.MockUtil;
 import org.mockito.internal.util.reflection.FieldReader;
-import org.mockito.internal.util.reflection.FieldSetter;
 
 import java.lang.reflect.Field;
 import java.util.Set;
@@ -36,7 +35,7 @@ public class SpyOnInjectedFieldsHandler extends MockInjectionStrategy {
         if(!fieldReader.isNull() && field.isAnnotationPresent(Spy.class)) {
             try {
                 Object instance = fieldReader.read();
-                if (new MockUtil().isMock(instance)) {
+                if (MockUtil.isMock(instance)) {
                     // A. instance has been spied earlier
                     // B. protect against multiple use of MockitoAnnotations.initMocks()
                     Mockito.reset(instance);

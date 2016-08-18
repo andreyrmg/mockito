@@ -19,7 +19,7 @@ public class ByteBuddyMockMaker implements MockMaker {
     private final CachingMockBytecodeGenerator cachingMockBytecodeGenerator;
 
     public ByteBuddyMockMaker() {
-        cachingMockBytecodeGenerator = new CachingMockBytecodeGenerator();
+        cachingMockBytecodeGenerator = new CachingMockBytecodeGenerator(false);
     }
 
     @Override
@@ -71,7 +71,7 @@ public class ByteBuddyMockMaker implements MockMaker {
         return typeToMock.cast(mock);
     }
 
-    private static String describeClass(Class type) {
+    private static String describeClass(Class<?> type) {
         return type == null ? "null" : "'" + type.getCanonicalName() + "', loaded by classloader : '" + type.getClassLoader() + "'";
     }
 
@@ -116,7 +116,7 @@ public class ByteBuddyMockMaker implements MockMaker {
         };
     }
 
-    private static InternalMockHandler asInternalMockHandler(MockHandler handler) {
+    private static InternalMockHandler<?> asInternalMockHandler(MockHandler handler) {
         if (!(handler instanceof InternalMockHandler)) {
             throw new MockitoException(join(
                     "At the moment you cannot provide own implementations of MockHandler.",
@@ -124,7 +124,7 @@ public class ByteBuddyMockMaker implements MockMaker {
                     ""
             ));
         }
-        return (InternalMockHandler) handler;
+        return (InternalMockHandler<?>) handler;
     }
 
 }

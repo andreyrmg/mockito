@@ -11,6 +11,8 @@ In case the release process from Travis CI fails, please try:
     - useful for recreating/merging release notes
 """
 
+def skipReleaseCommitMessage = '[ci skip-release]'
+
 import org.mockito.release.version.*
 
 assert project == rootProject
@@ -57,8 +59,12 @@ task("releaseNeeded") {
     doLast {
         def branch = System.env.TRAVIS_BRANCH
         def pr = System.env.TRAVIS_PULL_REQUEST
-        ext.needed = dryRun || (pr == 'false' && branch == 'master' && !comparePublications.publicationsEqual)
-        logger.lifecycle("Release needed: {}, branch: {}, pull request: {}, dry run: {}, publications equal: {}.", needed, branch, pr, dryRun, comparePublications.publicationsEqual)
+        def skipEnvVariable = System.env.SKIP_RELEASE
+        def commitMessage = System.env.TRAVIS_COMMIT_MESSAGE
+        def skippedByCommitMessage = commitMessage?.contains(skipReleaseCommitMessage)
+        ext.needed = dryRun || (pr == 'false' && branch == 'master' && !comparePublications.publicationsEqual && skipEnvVariable != 'true' && !skippedByCommitMessage)
+        logger.lifecycle("Release needed: {}, branch: {}, pull request: {}, dry run: {}, publications equal: {}, skip env variable: {}, skipped by message: {}.",
+                needed, branch, pr, dryRun, comparePublications.publicationsEqual, skipEnvVariable, skippedByCommitMessage)
     }
 }
 
@@ -86,7 +92,7 @@ release {
 
 releaseSteps {
     String currentVersion = project.version //the version loaded when Gradle build has started
-    String buildInfo = "by Travis CI build $System.env.TRAVIS_BUILD_NUMBER [ci skip]"
+    String buildInfo = "by Travis CI build $System.env.TRAVIS_BUILD_NUMBER $skipReleaseCommitMessage"
     MaskedArg pushTarget = new MaskedArg(value: "https://szczepiq:${System.env.GH_TOKEN}@github.com/mockito/mockito.git")
 
     step("ensure good chunk of recent commits is pulled for release notes automation") {

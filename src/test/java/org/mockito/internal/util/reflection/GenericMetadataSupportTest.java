@@ -4,22 +4,17 @@
  */
 package org.mockito.internal.util.reflection;
 
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.Assert.fail;
-import static org.mockito.internal.util.reflection.GenericMetadataSupport.inferFrom;
+import org.junit.Test;
 
 import java.io.Serializable;
 import java.lang.reflect.Method;
 import java.lang.reflect.Type;
 import java.lang.reflect.TypeVariable;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
-import org.junit.Test;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.Assert.fail;
+import static org.mockito.internal.util.reflection.GenericMetadataSupport.inferFrom;
 
 public class GenericMetadataSupportTest {
   
@@ -33,6 +28,11 @@ public class GenericMetadataSupportTest {
         E get();
     }
     interface ListOfNumbers extends List<Number> {}
+    interface AnotherListOfNumbers extends ListOfNumbers {}
+
+    abstract class ListOfNumbersImpl implements ListOfNumbers {}
+    abstract class AnotherListOfNumbersImpl extends ListOfNumbersImpl {}
+
     interface ListOfAnyNumbers<N extends Number & Cloneable> extends List<N> {}
 
     interface GenericsNest<K extends Comparable<K> & Cloneable> extends Map<K, Set<Number>> {
@@ -79,6 +79,13 @@ public class GenericMetadataSupportTest {
         assertThat(inferFrom(Map.class).actualTypeArguments().keySet()).hasSize(2).extracting("name").contains("K", "V");
         assertThat(inferFrom(Serializable.class).actualTypeArguments().keySet()).isEmpty();
         assertThat(inferFrom(StringList.class).actualTypeArguments().keySet()).isEmpty();
+    }
+
+    @Test
+    public void can_resolve_type_variables_from_ancestors() throws Exception {
+        Method listGet = List.class.getMethod("get", int.class);
+        assertThat(inferFrom(AnotherListOfNumbers.class).resolveGenericReturnType(listGet).rawType()).isEqualTo(Number.class);
+        assertThat(inferFrom(AnotherListOfNumbersImpl.class).resolveGenericReturnType(listGet).rawType()).isEqualTo(Number.class);
     }
 
     @Test

@@ -327,19 +327,27 @@ public class BDDMockito extends Mockito {
          * See original {@link Stubber#doAnswer(Answer)}
          * @since 1.8.0
          */
-        BDDStubber willAnswer(Answer answer);
+        BDDStubber willAnswer(Answer<?> answer);
 
         /**
          * See original {@link Stubber#doAnswer(Answer)}
          * @since 1.8.0
          */
-        BDDStubber will(Answer answer);
+        BDDStubber will(Answer<?> answer);
 
         /**
          * See original {@link Stubber#doNothing()}
          * @since 1.8.0
+         * @deprecated please use {@link #willDoNothing()} instead
          */
+        @Deprecated
         BDDStubber willNothing();
+
+        /**
+         * See original {@link Stubber#doNothing()}
+         * @since 1.10.20
+         */
+        BDDStubber willDoNothing();
 
         /**
          * See original {@link Stubber#doReturn(Object)}
@@ -398,15 +406,23 @@ public class BDDMockito extends Mockito {
             return mockitoStubber.when(mock);
         }
 
-        public BDDStubber willAnswer(Answer answer) {
+        public BDDStubber willAnswer(Answer<?> answer) {
             return new BDDStubberImpl(mockitoStubber.doAnswer(answer));
         }
 
-        public BDDStubber will(Answer answer) {
+        public BDDStubber will(Answer<?> answer) {
             return new BDDStubberImpl(mockitoStubber.doAnswer(answer));
         }
 
+        /**
+         * @deprecated please use {@link #willDoNothing()} instead
+         */
+        @Deprecated
         public BDDStubber willNothing() {
+            return willDoNothing();
+        }
+
+        public BDDStubber willDoNothing() {
             return new BDDStubberImpl(mockitoStubber.doNothing());
         }
 
@@ -463,7 +479,7 @@ public class BDDMockito extends Mockito {
      * see original {@link Mockito#doAnswer(Answer)}
      * @since 1.8.0
      */
-    public static BDDStubber willAnswer(Answer answer) {
+    public static BDDStubber willAnswer(Answer<?> answer) {
         return new BDDStubberImpl(Mockito.doAnswer(answer));
     }
 
@@ -471,7 +487,7 @@ public class BDDMockito extends Mockito {
      * see original {@link Mockito#doAnswer(Answer)}
      * @since 2.0.0
      */
-    public static BDDStubber will(Answer answer) {
+    public static BDDStubber will(Answer<?> answer) {
         return new BDDStubberImpl(Mockito.doAnswer(answer));
     }
 

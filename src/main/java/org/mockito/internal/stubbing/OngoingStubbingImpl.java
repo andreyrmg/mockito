@@ -4,12 +4,11 @@
  */
 package org.mockito.internal.stubbing;
 
-import org.mockito.exceptions.Reporter;
 import org.mockito.invocation.Invocation;
 import org.mockito.stubbing.Answer;
 import org.mockito.stubbing.OngoingStubbing;
 
-import static org.mockito.exceptions.Reporter.incorrectUseOfApi;
+import static org.mockito.internal.exceptions.Reporter.incorrectUseOfApi;
 
 import java.util.List;
 
@@ -39,6 +38,7 @@ public class OngoingStubbingImpl<T> extends BaseStubbing<T> {
         return invocationContainerImpl.getInvocations();
     }
 
+    @SuppressWarnings("unchecked")
     public <M> M getMock() {
         return (M) invocationContainerImpl.invokedMock();
     }

@@ -6,22 +6,9 @@
 package org.mockito;
 
 import org.mockito.configuration.AnnotationEngine;
-import org.mockito.configuration.DefaultMockitoConfiguration;
-import org.mockito.exceptions.Reporter;
 import org.mockito.exceptions.base.MockitoException;
 import org.mockito.internal.configuration.GlobalConfiguration;
-import org.mockito.internal.util.reflection.FieldSetter;
 import org.mockito.runners.MockitoJUnitRunner;
-
-import java.lang.annotation.Annotation;
-import java.lang.annotation.Retention;
-import java.lang.annotation.RetentionPolicy;
-import java.lang.annotation.Target;
-import java.lang.reflect.Field;
-
-import static java.lang.annotation.ElementType.FIELD;
-import static org.mockito.exceptions.Reporter.moreThanOneAnnotationNotAllowed;
-import static org.mockito.internal.util.reflection.FieldSetter.setField;
 
 /**
  * MockitoAnnotations.initMocks(this); initializes fields annotated with Mockito annotations.
@@ -77,50 +64,6 @@ public class MockitoAnnotations {
         }
 
         AnnotationEngine annotationEngine = new GlobalConfiguration().getAnnotationEngine();
-        Class<?> clazz = testClass.getClass();
-
-        //below can be removed later, when we get read rid of deprecated stuff
-        if (annotationEngine.getClass() != new DefaultMockitoConfiguration().getAnnotationEngine().getClass()) {
-            //this means user has his own annotation engine and we have to respect that.
-            //we will do annotation processing the old way so that we are backwards compatible
-            while (clazz != Object.class) {
-                scanDeprecatedWay(annotationEngine, testClass, clazz);
-                clazz = clazz.getSuperclass();
-            }
-        }
-        //anyway act 'the new' way
         annotationEngine.process(testClass.getClass(), testClass);
-    }
-
-    static void scanDeprecatedWay(AnnotationEngine annotationEngine, Object testClass, Class<?> clazz) {
-        Field[] fields = clazz.getDeclaredFields();
-
-        for (Field field : fields) {
-            processAnnotationDeprecatedWay(annotationEngine, testClass, field);
-        }
-    }
-
-    @SuppressWarnings("deprecation")
-    static void processAnnotationDeprecatedWay(AnnotationEngine annotationEngine, Object testClass, Field field) {
-        boolean alreadyAssigned = false;
-        for(Annotation annotation : field.getAnnotations()) {
-            Object mock = annotationEngine.createMockFor(annotation, field);
-            if (mock != null) {
-                throwIfAlreadyAssigned(field, alreadyAssigned);
-                alreadyAssigned = true;                
-                try {
-                    setField(testClass, field,mock);
-                } catch (Exception e) {
-                    throw new MockitoException("Problems setting field " + field.getName() + " annotated with "
-                            + annotation, e);
-                }
-            }
-        }
-    }
-
-    static void throwIfAlreadyAssigned(Field field, boolean alreadyAssigned) {
-        if (alreadyAssigned) {
-            throw moreThanOneAnnotationNotAllowed(field.getName());
-        }
     }
 }

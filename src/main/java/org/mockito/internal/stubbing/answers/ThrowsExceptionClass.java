@@ -5,13 +5,12 @@
 
 package org.mockito.internal.stubbing.answers;
 
-import org.mockito.exceptions.Reporter;
 import org.mockito.internal.exceptions.stacktrace.ConditionalStackTraceFilter;
 import org.mockito.invocation.InvocationOnMock;
 import org.mockito.stubbing.Answer;
 import org.objenesis.ObjenesisHelper;
 
-import static org.mockito.exceptions.Reporter.notAnException;
+import static org.mockito.internal.exceptions.Reporter.notAnException;
 
 import java.io.Serializable;
 
@@ -33,7 +32,7 @@ public class ThrowsExceptionClass implements Answer<Object>, Serializable {
 
     public Object answer(InvocationOnMock invocation) throws Throwable {
         //TODO centralize the use of Objenesis. Why do we use ObjenesisHelper?
-        Throwable throwable = (Throwable) ObjenesisHelper.newInstance(throwableClass);
+        Throwable throwable = ObjenesisHelper.newInstance(throwableClass);
         throwable.fillInStackTrace();
         filter.filter(throwable);
         throw throwable;

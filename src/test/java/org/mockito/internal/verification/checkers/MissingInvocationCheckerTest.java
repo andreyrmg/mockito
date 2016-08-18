@@ -8,8 +8,6 @@ package org.mockito.internal.verification.checkers;
 import static java.util.Arrays.asList;
 
 import java.util.List;
-
-import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
@@ -24,7 +22,6 @@ import org.mockitoutil.TestBase;
 
 public class MissingInvocationCheckerTest extends TestBase {
 
-	private MissingInvocationChecker checker;
 	private InvocationMatcher wanted;
 	private List<Invocation> invocations;
 
@@ -34,17 +31,12 @@ public class MissingInvocationCheckerTest extends TestBase {
 	@Rule
 	public ExpectedException exception = ExpectedException.none();
 
-	@Before
-	public void setup() {
-		checker = new MissingInvocationChecker();
-	}
-
 	@Test
 	public void shouldPassBecauseActualInvocationFound() {
 		wanted = buildSimpleMethod().toInvocationMatcher();
 		invocations = asList(buildSimpleMethod().toInvocation());
 
-		checker.check(invocations, wanted);
+		MissingInvocationChecker.checkMissingInvocation(invocations, wanted);
 	}
 
 	@Test
@@ -55,10 +47,10 @@ public class MissingInvocationCheckerTest extends TestBase {
 		exception.expect(WantedButNotInvoked.class);
 		exception.expectMessage("Wanted but not invoked:");
 		exception.expectMessage("mock.simpleMethod()");
-		exception.expectMessage("However, there were other interactions with this mock:");
+		exception.expectMessage("However, there was exactly 1 interaction with this mock:");
 		exception.expectMessage("mock.differentMethod();");
 
-		checker.check(invocations, wanted);
+		MissingInvocationChecker.checkMissingInvocation(invocations, wanted);
 	}
 
 	@Test
@@ -73,7 +65,7 @@ public class MissingInvocationCheckerTest extends TestBase {
 		exception.expectMessage("Actual invocation has different arguments:");
 		exception.expectMessage("mock.intArgumentMethod(1111);");
 
-		checker.check(invocations, wanted);
+		MissingInvocationChecker.checkMissingInvocation(invocations, wanted);
 	}
 
 	private InvocationBuilder buildIntArgMethod() {

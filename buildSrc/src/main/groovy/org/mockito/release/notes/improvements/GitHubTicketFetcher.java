@@ -150,6 +150,7 @@ class GitHubTicketFetcher {
 
             String content = IOUtil.readFully(response);
             LOG.info("GitHub API responded successfully.");
+            @SuppressWarnings("unchecked")
             List<JSONObject> issues = (List<JSONObject>) JSONValue.parse(content);
             LOG.info("GitHub API returned {} issues.", issues.size());
             return issues;
@@ -179,7 +180,7 @@ class GitHubTicketFetcher {
         }
 
         private static class GitHubIssuesBuilder {
-            private String authToken;
+            private final String authToken;
             private String state;
             private String filter;
             private String direction;

@@ -4,11 +4,12 @@
  */
 package org.mockitousage.debugging;
 
-import static org.mockito.BDDMockito.*;
-
 import org.junit.Test;
 import org.mockito.Mock;
 import org.mockitoutil.TestBase;
+
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.BDDMockito.given;
 
 public class PrintingInvocationsDetectsUnusedStubTest extends TestBase {
 
@@ -25,6 +26,6 @@ public class PrintingInvocationsDetectsUnusedStubTest extends TestBase {
         String log = NewMockito.debug().printInvocations(mock, mockTwo);
 
         //then
-        assertContainsIgnoringCase("unused", log);
+        assertThat(log).containsIgnoringCase("unused");
     }
 }

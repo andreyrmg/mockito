@@ -1,7 +1,6 @@
 package org.mockito.internal.creation.bytebuddy;
 
 import net.bytebuddy.ByteBuddy;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.mockito.Mockito;
 import org.mockito.internal.InternalMockHandler;
@@ -12,7 +11,7 @@ import org.mockito.invocation.Invocation;
 import org.mockito.invocation.MockHandler;
 import org.mockito.mock.MockCreationSettings;
 import org.mockito.plugins.MockMaker;
-import org.mockito.stubbing.VoidMethodStubbable;
+import org.mockito.stubbing.Answer;
 import org.mockitoutil.ClassLoaders;
 import org.objenesis.ObjenesisStd;
 
@@ -30,7 +29,7 @@ public class ByteBuddyMockMakerTest {
     public void should_create_mock_from_interface() throws Exception {
         SomeInterface proxy = mockMaker.createMock(settingsFor(SomeInterface.class), dummyH());
 
-        Class superClass = proxy.getClass().getSuperclass();
+        Class<?> superClass = proxy.getClass().getSuperclass();
         assertThat(superClass).isEqualTo(Object.class);
     }
 
@@ -39,7 +38,7 @@ public class ByteBuddyMockMakerTest {
     public void should_create_mock_from_class() throws Exception {
         ClassWithoutConstructor proxy = mockMaker.createMock(settingsFor(ClassWithoutConstructor.class), dummyH());
 
-        Class superClass = proxy.getClass().getSuperclass();
+        Class<?> superClass = proxy.getClass().getSuperclass();
         assertThat(superClass).isEqualTo(ClassWithoutConstructor.class);
     }
 
@@ -93,46 +92,16 @@ public class ByteBuddyMockMakerTest {
     }
 
     @Test
-    @Ignore("missing objenesis reporting removed")
-    public void report_issue_when_trying_to_load_objenesis() throws Exception {
-        // given
-        ClassLoader classpath_without_objenesis = ClassLoaders.excludingClassLoader()
-                .withCodeSourceUrlOf(Mockito.class, ByteBuddy.class)
-                .withCodeSourceUrlOf(coverageTool())
-                .without("org.objenesis")
-                .build();
-        boolean initialize_class = true;
-
-        Class<?> mock_maker_class_loaded_fine_until = Class.forName(
-                "org.mockito.internal.creation.bytebuddy.ByteBuddyMockMaker",
-                initialize_class,
-                classpath_without_objenesis
-        );
-
-
-        // when
-        try {
-            mock_maker_class_loaded_fine_until.newInstance();
-            fail();
-        } catch (Throwable e) {
-            // then
-            assertThat(e).isInstanceOf(IllegalStateException.class);
-            assertThat(e.getMessage()).containsIgnoringCase("objenesis").contains("missing");
-        }
-    }
-
-    @Test
     public void instantiate_fine_when_objenesis_on_the_classpath() throws Exception {
         // given
         ClassLoader classpath_with_objenesis = ClassLoaders.excludingClassLoader()
                 .withCodeSourceUrlOf(Mockito.class, ByteBuddy.class, ObjenesisStd.class)
                 .withCodeSourceUrlOf(coverageTool())
                 .build();
-        boolean initialize_class = true;
 
         Class<?> mock_maker_class_loaded_fine_until = Class.forName(
                 "org.mockito.internal.creation.bytebuddy.ByteBuddyMockMaker",
-                initialize_class,
+                true,
                 classpath_with_objenesis
         );
 
@@ -142,7 +111,7 @@ public class ByteBuddyMockMakerTest {
         // then everything went fine
     }
 
-    private static <T> MockCreationSettings<T> settingsFor(Class<T> type, Class... extraInterfaces) {
+    private static <T> MockCreationSettings<T> settingsFor(Class<T> type, Class<?>... extraInterfaces) {
         MockSettingsImpl<T> mockSettings = new MockSettingsImpl<T>();
         mockSettings.setTypeToMock(type);
         if(extraInterfaces.length > 0) mockSettings.extraInterfaces(extraInterfaces);
@@ -155,15 +124,14 @@ public class ByteBuddyMockMakerTest {
         return mockSettings;
     }
 
-    public static MockHandler dummyH() {
+    private static MockHandler dummyH() {
         return new DummyMockHandler();
     }
 
-    private static class DummyMockHandler implements InternalMockHandler {
+    private static class DummyMockHandler implements InternalMockHandler<Object> {
         public Object handle(Invocation invocation) throws Throwable { return null; }
-        public MockCreationSettings getMockSettings() { return null; }
-        public VoidMethodStubbable voidMethodStubbable(Object mock) { return null; }
+        public MockCreationSettings<Object> getMockSettings() { return null; }
         public InvocationContainer getInvocationContainer() { return null; }
-        public void setAnswersForStubbing(List list) { }
+        public void setAnswersForStubbing(List<Answer<?>> list) { }
     }
 }

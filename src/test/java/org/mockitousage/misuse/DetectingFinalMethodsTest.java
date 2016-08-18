@@ -3,13 +3,14 @@
  * This program is made available under the terms of the MIT License.
  */
 package org.mockitousage.misuse;
-import org.junit.Ignore;
+
 import org.junit.Test;
 import org.mockito.Mock;
 import org.mockito.exceptions.misusing.MissingMethodInvocationException;
 import org.mockito.exceptions.misusing.UnfinishedVerificationException;
 import org.mockitoutil.TestBase;
 
+import static junit.framework.TestCase.fail;
 import static org.mockito.Mockito.*;
 
 public class DetectingFinalMethodsTest extends TestBase {
@@ -33,7 +34,6 @@ public class DetectingFinalMethodsTest extends TestBase {
     }
 
     @Test
-    @Ignore("Failed on check out")
     public void shouldFailWithUnfinishedStubbing() {
         withFinal = mock(WithFinal.class);
         try {

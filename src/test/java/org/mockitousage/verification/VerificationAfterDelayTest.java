@@ -4,14 +4,22 @@
 
 package org.mockitousage.verification;
 
+import static java.util.concurrent.Executors.newSingleThreadScheduledExecutor;
+import static java.util.concurrent.TimeUnit.MILLISECONDS;
+import static java.util.concurrent.TimeUnit.SECONDS;
+import static junit.framework.TestCase.assertEquals;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.rules.ExpectedException.none;
 import static org.mockito.Mockito.after;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
+import static org.mockito.junit.MockitoJUnit.rule;
+import static org.mockitoutil.Stopwatch.createNotStarted;
 
-import java.util.LinkedList;
-import java.util.List;
-
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeUnit;
 import org.junit.After;
+import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
@@ -19,96 +27,95 @@ import org.mockito.ArgumentCaptor;
 import org.mockito.Captor;
 import org.mockito.Mock;
 import org.mockito.exceptions.base.MockitoAssertionError;
-import org.mockitoutil.TestBase;
+import org.mockito.junit.MockitoRule;
+import org.mockitousage.IMethods;
+import org.mockitoutil.Stopwatch;
 
-public class VerificationAfterDelayTest extends TestBase {
-    
+public class VerificationAfterDelayTest {
+
     @Rule
-    public ExpectedException expected = ExpectedException.none();
+    public MockitoRule mockito = rule();
+
+    @Rule
+    public ExpectedException exception = none();
 
     @Mock
-    private List<String> mock;
-
-    private List<Exception> exceptions = new LinkedList<Exception>();
+    private IMethods mock;
 
     @Captor
-    private ArgumentCaptor<String> stringArgumentCaptor;
+    private ArgumentCaptor<Character> captor;
+
+    private ScheduledExecutorService executor;
+
+    private Stopwatch stopWatch;
+
+    @Before
+    public void setUp() {
+        executor = newSingleThreadScheduledExecutor();
+        stopWatch = createNotStarted();
+    }
 
     @After
-    public void teardown() {
-        // making sure there are no threading related exceptions
-        assertTrue(exceptions.isEmpty());
+    public void tearDown() throws InterruptedException {
+        executor.shutdownNow();
+        executor.awaitTermination(5, SECONDS);
     }
 
     @Test
     public void shouldVerifyNormallyWithSpecificTimes() throws Exception {
         // given
-        Thread t = waitAndExerciseMock(20);
-
-        // when
-        t.start();
+        callAsyncWithDelay(mock, '1', 20, MILLISECONDS);
 
         // then
-        verify(mock, after(50).times(1)).clear();
+        verify(mock, after(100).times(1)).oneArg('1');
     }
 
     @Test
     public void shouldVerifyNormallyWithAtLeast() throws Exception {
         // given
-        Thread t = waitAndExerciseMock(20);
-
-        // when
-        t.start();
+        callAsyncWithDelay(mock, '1', 20, MILLISECONDS);
 
         // then
-        verify(mock, after(100).atLeast(1)).clear();
+        verify(mock, after(100).atLeast(1)).oneArg('1');
     }
 
     @Test
     public void shouldFailVerificationWithWrongTimes() throws Exception {
         // given
-        Thread t = waitAndExerciseMock(20);
-
-        // when
-        t.start();
+        callAsyncWithDelay(mock, '1', 20, MILLISECONDS);
 
         // then
-        verify(mock, times(0)).clear();
-        
-        expected.expect(MockitoAssertionError.class);
-        verify(mock, after(50).times(2)).clear();
+        verify(mock, times(0)).oneArg('1');
+
+        exception.expect(MockitoAssertionError.class);
+        verify(mock, after(100).times(2)).oneArg('1');
     }
 
     @Test
     public void shouldWaitTheFullTimeIfTheTestCouldPass() throws Exception {
         // given
-        Thread t = waitAndExerciseMock(50);
+        callAsyncWithDelay(mock, '1', 20, MILLISECONDS);
 
-        // when
-        t.start();
+        // then
+        stopWatch.start();
 
-        // then        
-        long startTime = System.currentTimeMillis();
-        
         try {
-            verify(mock, after(100).atLeast(2)).clear();
-            fail();
-        } catch (MockitoAssertionError e) {}
-        
-        assertTrue(System.currentTimeMillis() - startTime >= 100);
+            verify(mock, after(100).atLeast(2)).oneArg('1');
+        } catch (MockitoAssertionError ignored) {
+        }
+
+        stopWatch.assertElapsedTimeIsMoreThan(100, MILLISECONDS);
     }
-    
-    @Test(timeout=100)
+
+    @Test(timeout = 100)
     public void shouldStopEarlyIfTestIsDefinitelyFailed() throws Exception {
         // given
-        Thread t = waitAndExerciseMock(50);
-        
-        // when
-        t.start();
-        
+        // given
+        callAsyncWithDelay(mock, '1', 20, MILLISECONDS);
+
         // then
-        expected.expect(MockitoAssertionError.class);
-        verify(mock, after(10000).never()).clear();
+        exception.expect(MockitoAssertionError.class);
+        verify(mock, after(10000).never()).oneArg('1');
     }
 
     /**
@@ -122,34 +129,59 @@ public class VerificationAfterDelayTest extends TestBase {
         // when
         exerciseMockNTimes(n);
 
+        stopWatch.start();
         // then
-        verify(mock, after(200).atMost(n)).add(stringArgumentCaptor.capture());
-        assertEquals(n, stringArgumentCaptor.getAllValues().size());
-        assertEquals("0", stringArgumentCaptor.getAllValues().get(0));
-        assertEquals("1", stringArgumentCaptor.getAllValues().get(1));
-        assertEquals("2", stringArgumentCaptor.getAllValues().get(2));
+        verify(mock, after(200).atMost(n)).oneArg((char) captor.capture());
+
+        stopWatch.assertElapsedTimeIsMoreThan(200, MILLISECONDS);
+        assertThat(captor.getAllValues()).containsExactly('0', '1', '2');
+    }
+
+    @Test
+    public void shouldReturnListOfArgumentsWithSameSizeAsGivenInTimesVerification() {
+        // given
+        int n = 3;
+
+        // when
+        exerciseMockNTimes(n);
+
+        //Then
+        verify(mock, after(200).times(n)).oneArg((char) captor.capture());
+        assertEquals(n, captor.getAllValues().size());
+        assertEquals('0', (char) captor.getAllValues().get(0));
+        assertEquals('1', (char) captor.getAllValues().get(1));
+        assertEquals('2', (char) captor.getAllValues().get(2));
+    }
+
+    @Test
+    public void shouldReturnListOfArgumentsWithSameSizeAsGivenInAtLeastVerification() {
+        // given
+        int n = 3;
+
+        // when
+        exerciseMockNTimes(n);
+
+        //Then
+        verify(mock, after(200).atLeast(n)).oneArg((char) captor.capture());
+        assertEquals(n, captor.getAllValues().size());
+        assertEquals('0', (char) captor.getAllValues().get(0));
+        assertEquals('1', (char) captor.getAllValues().get(1));
+        assertEquals('2', (char) captor.getAllValues().get(2));
     }
 
     private void exerciseMockNTimes(int n) {
         for (int i = 0; i < n; i++) {
-            mock.add(String.valueOf(i));
+            mock.oneArg((char) ('0' + i));
         }
     }
 
-    private Thread waitAndExerciseMock(final int sleep) {
-        Thread t = new Thread() {
-
+    private void callAsyncWithDelay(final IMethods mock, final char value, long delay, TimeUnit unit) {
+        Runnable task = new Runnable() {
             @Override
             public void run() {
-                try {
-                    Thread.sleep(sleep);
-                } catch (InterruptedException e) {
-                    exceptions.add(e);
-                    throw new RuntimeException(e);
-                }
-                mock.clear();
+                mock.oneArg(value);
             }
         };
-        return t;
+        executor.schedule(task, delay, unit);
     }
 }

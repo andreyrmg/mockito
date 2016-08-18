@@ -5,9 +5,8 @@
 package org.mockito.internal.creation;
 
 import org.mockito.MockSettings;
-import org.mockito.exceptions.Reporter;
 
-import static org.mockito.exceptions.Reporter.*;
+import static org.mockito.internal.exceptions.Reporter.*;
 import org.mockito.internal.creation.settings.CreationSettings;
 import org.mockito.internal.debugging.VerboseMockInvocationLogger;
 import org.mockito.internal.util.MockCreationValidator;
@@ -91,7 +90,7 @@ public class MockSettingsImpl<T> extends CreationSettings<T> implements MockSett
         return defaultAnswer;
     }
 
-    public MockSettingsImpl stubOnly() {
+    public MockSettingsImpl<T> stubOnly() {
         this.stubOnly = true;
         return this;
     }

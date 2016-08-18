@@ -5,7 +5,7 @@
 package org.mockito.internal.configuration;
 
 import static org.mockito.Mockito.withSettings;
-import static org.mockito.exceptions.Reporter.unsupportedCombinationOfAnnotations;
+import static org.mockito.internal.exceptions.Reporter.unsupportedCombinationOfAnnotations;
 
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Constructor;
@@ -20,7 +20,6 @@ import org.mockito.MockSettings;
 import org.mockito.Mockito;
 import org.mockito.Spy;
 import org.mockito.configuration.AnnotationEngine;
-import org.mockito.exceptions.Reporter;
 import org.mockito.exceptions.base.MockitoException;
 import org.mockito.internal.util.MockUtil;
 
@@ -45,10 +44,7 @@ import org.mockito.internal.util.MockUtil;
 @SuppressWarnings({"unchecked"})
 public class SpyAnnotationEngine implements AnnotationEngine {
 
-    public Object createMockFor(Annotation annotation, Field field) {
-        return null;
-    }
-
+    @Override
     public void process(Class<?> context, Object testInstance) {
         Field[] fields = context.getDeclaredFields();
         for (Field field : fields) {
@@ -59,7 +55,7 @@ public class SpyAnnotationEngine implements AnnotationEngine {
                 try {
                     instance = field.get(testInstance);
                     assertNotInterface(instance, field.getType());
-                    if (new MockUtil().isMock(instance)) {
+                    if (MockUtil.isMock(instance)) {
                         // instance has been spied earlier
                         // for example happens when MockitoAnnotations.initMocks is called two times.
                         Mockito.reset(instance);
@@ -124,8 +120,8 @@ public class SpyAnnotationEngine implements AnnotationEngine {
     }
 
     //TODO duplicated elsewhere
-    void assertNoIncompatibleAnnotations(Class annotation, Field field, Class... undesiredAnnotations) {
-        for (Class u : undesiredAnnotations) {
+    private void assertNoIncompatibleAnnotations(Class<? extends Annotation> annotation, Field field, Class<? extends Annotation>... undesiredAnnotations) {
+        for (Class<? extends Annotation> u : undesiredAnnotations) {
             if (field.isAnnotationPresent(u)) {
                 throw unsupportedCombinationOfAnnotations(annotation.getSimpleName(), annotation.getClass().getSimpleName());
             }

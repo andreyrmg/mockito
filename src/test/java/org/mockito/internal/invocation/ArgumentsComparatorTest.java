@@ -4,22 +4,27 @@
  */
 package org.mockito.internal.invocation;
 
-import org.mockito.invocation.Invocation;
-import org.mockitoutil.TestBase;
-import org.junit.Test;
-import org.mockito.internal.matchers.*;
-import org.mockito.Mock;
-import org.mockitousage.IMethods;
+import static java.util.Arrays.asList;
+import static junit.framework.TestCase.assertFalse;
+import static junit.framework.TestCase.assertTrue;
+import static org.mockito.internal.invocation.ArgumentsComparator.argumentsMatch;
+import static org.mockito.internal.matchers.Any.ANY;
 
 import java.util.List;
-import static java.util.Arrays.asList;
+import org.junit.Test;
+import org.mockito.Mock;
+import org.mockito.internal.matchers.Any;
+import org.mockito.internal.matchers.Equals;
+import org.mockito.internal.matchers.InstanceOf;
+import org.mockito.invocation.Invocation;
+import org.mockitousage.IMethods;
+import org.mockitoutil.TestBase;
 
 @SuppressWarnings("unchecked")
 public class ArgumentsComparatorTest extends TestBase {
 
     @Mock IMethods mock;
-    ArgumentsComparator comparator = new ArgumentsComparator();
-    
+
     @Test
     public void shouldKnowWhenArgumentsMatch() {
         //given
@@ -27,7 +32,7 @@ public class ArgumentsComparatorTest extends TestBase {
         InvocationMatcher invocationMatcher = new InvocationBuilder().args("1", 100).toInvocationMatcher();
 
         //when
-        boolean match = comparator.argumentsMatch(invocationMatcher, invocation);
+        boolean match = argumentsMatch(invocationMatcher, invocation);
 
         //then
         assertTrue(match);
@@ -40,7 +45,7 @@ public class ArgumentsComparatorTest extends TestBase {
         InvocationMatcher invocationMatcher = new InvocationBuilder().args("100", 100).toInvocationMatcher();
 
         //when
-        boolean match = comparator.argumentsMatch(invocationMatcher, invocation);
+        boolean match = argumentsMatch(invocationMatcher, invocation);
 
         //then
         assertFalse(match);
@@ -53,7 +58,7 @@ public class ArgumentsComparatorTest extends TestBase {
         InvocationMatcher invocationMatcher = new InvocationBuilder().args("100").toInvocationMatcher();
 
         //when
-        boolean match = comparator.argumentsMatch(invocationMatcher, invocation);
+        boolean match = argumentsMatch(invocationMatcher, invocation);
 
         //then
         assertFalse(match);
@@ -66,7 +71,7 @@ public class ArgumentsComparatorTest extends TestBase {
         InvocationMatcher invocationMatcher = new InvocationBuilder().args("100", 100).toInvocationMatcher();
 
         //when
-        boolean match = comparator.argumentsMatch(invocationMatcher, invocation);
+        boolean match = argumentsMatch(invocationMatcher, invocation);
 
         //then
         assertFalse(match);
@@ -80,7 +85,7 @@ public class ArgumentsComparatorTest extends TestBase {
         InvocationMatcher invocationMatcher = new InvocationMatcher(invocation, (List) asList(new Equals("1"), Any.ANY, new InstanceOf(String.class)));
 
         //when
-        boolean match = comparator.argumentsMatch(invocationMatcher, invocation);
+        boolean match = argumentsMatch(invocationMatcher, invocation);
 
         //then
         assertTrue(match);
@@ -94,21 +99,7 @@ public class ArgumentsComparatorTest extends TestBase {
         InvocationMatcher invocationMatcher = new InvocationMatcher(invocation, (List) asList(new Equals("100"), Any.ANY));
 
         //when
-        boolean match = comparator.argumentsMatch(invocationMatcher, invocation);
-
-        //then
-        assertFalse(match);
-    }
-
-    @Test
-    public void shouldNotAllowAnyObjectMatchEntireVararg() {
-        //given
-        mock.varargs("1", "2");
-        Invocation invocation = getLastInvocation();
-        InvocationMatcher invocationMatcher = new InvocationMatcher(invocation, (List) asList(Any.ANY));
-
-        //when
-        boolean match = comparator.argumentsMatch(invocationMatcher, invocation);
+        boolean match = argumentsMatch(invocationMatcher, invocation);
 
         //then
         assertFalse(match);
@@ -119,10 +110,10 @@ public class ArgumentsComparatorTest extends TestBase {
         //given
         mock.varargs("1", "2");
         Invocation invocation = getLastInvocation();
-        InvocationMatcher invocationMatcher = new InvocationMatcher(invocation, (List) asList(AnyVararg.ANY_VARARG));
+        InvocationMatcher invocationMatcher = new InvocationMatcher(invocation, (List) asList(ANY));
 
         //when
-        boolean match = comparator.argumentsMatch(invocationMatcher, invocation);
+        boolean match = argumentsMatch(invocationMatcher, invocation);
 
         //then
         assertTrue(match);
@@ -136,7 +127,7 @@ public class ArgumentsComparatorTest extends TestBase {
         InvocationMatcher invocationMatcher = new InvocationMatcher(invocation, (List) asList(new Equals(1)));
 
         //when
-        boolean match = comparator.argumentsMatch(invocationMatcher, invocation);
+        boolean match = argumentsMatch(invocationMatcher, invocation);
 
         //then
         assertFalse(match);
@@ -147,10 +138,10 @@ public class ArgumentsComparatorTest extends TestBase {
         //given
         mock.mixedVarargs(1, "1", "2");
         Invocation invocation = getLastInvocation();
-        InvocationMatcher invocationMatcher = new InvocationMatcher(invocation, (List) asList(new Equals(1), AnyVararg.ANY_VARARG));
+        InvocationMatcher invocationMatcher = new InvocationMatcher(invocation, (List) asList(new Equals(1), ANY));
 
         //when
-        boolean match = comparator.argumentsMatch(invocationMatcher, invocation);
+        boolean match = argumentsMatch(invocationMatcher, invocation);
 
         //then
         assertTrue(match);
@@ -161,10 +152,10 @@ public class ArgumentsComparatorTest extends TestBase {
         //given
         mock.mixedVarargs(1, "1", "2");
         Invocation invocation = getLastInvocation();
-        InvocationMatcher invocationMatcher = new InvocationMatcher(invocation, (List) asList(new Equals(100), AnyVararg.ANY_VARARG));
+        InvocationMatcher invocationMatcher = new InvocationMatcher(invocation, (List) asList(new Equals(100), ANY));
 
         //when
-        boolean match = comparator.argumentsMatch(invocationMatcher, invocation);
+        boolean match = argumentsMatch(invocationMatcher, invocation);
 
         //then
         assertFalse(match);
@@ -178,7 +169,7 @@ public class ArgumentsComparatorTest extends TestBase {
         InvocationMatcher invocationMatcher = new InvocationMatcher(invocation, (List) asList(new Equals(1)));
 
         //when
-        boolean match = comparator.argumentsMatch(invocationMatcher, invocation);
+        boolean match = argumentsMatch(invocationMatcher, invocation);
 
         //then
         assertFalse(match);
@@ -189,10 +180,10 @@ public class ArgumentsComparatorTest extends TestBase {
         //given
         mock.mixedVarargs(null, null, "2");
         Invocation invocation = getLastInvocation();
-        InvocationMatcher invocationMatcher = new InvocationMatcher(invocation, (List) asList(new Equals(null), AnyVararg.ANY_VARARG));
+        InvocationMatcher invocationMatcher = new InvocationMatcher(invocation, (List) asList(new Equals(null), ANY));
 
         //when
-        boolean match = comparator.argumentsMatch(invocationMatcher, invocation);
+        boolean match = argumentsMatch(invocationMatcher, invocation);
 
         //then
         assertTrue(match);
@@ -203,10 +194,10 @@ public class ArgumentsComparatorTest extends TestBase {
         //given
         mock.varargs("1", "2");
         Invocation invocation = getLastInvocation();
-        InvocationMatcher invocationMatcher = new InvocationMatcher(invocation, asList(AnyVararg.ANY_VARARG));
+        InvocationMatcher invocationMatcher = new InvocationMatcher(invocation, (List)asList(ANY));
 
         //when
-        boolean match = comparator.argumentsMatch(invocationMatcher, invocation);
+        boolean match = argumentsMatch(invocationMatcher, invocation);
 
         //then
         assertTrue(match);

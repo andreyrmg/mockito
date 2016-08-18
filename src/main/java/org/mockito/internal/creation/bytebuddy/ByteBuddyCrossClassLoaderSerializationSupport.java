@@ -26,9 +26,7 @@ import java.util.concurrent.locks.ReentrantLock;
 import org.mockito.Incubating;
 import org.mockito.exceptions.base.MockitoSerializationIssue;
 import org.mockito.internal.configuration.plugins.Plugins;
-import org.mockito.internal.creation.bytebuddy.MockMethodInterceptor.ForWriteReplace;
 import org.mockito.internal.util.MockUtil;
-import org.mockito.internal.util.reflection.FieldSetter;
 import org.mockito.mock.MockCreationSettings;
 import org.mockito.mock.MockName;
 
@@ -122,9 +120,8 @@ class ByteBuddyCrossClassLoaderSerializationSupport implements Serializable {
 
             return new CrossClassLoaderSerializationProxy(mockitoMock);
         } catch (IOException ioe) {
-            MockUtil mockUtil = new MockUtil();
-            MockName mockName = mockUtil.getMockName(mockitoMock);
-            String mockedType = mockUtil.getMockSettings(mockitoMock).getTypeToMock().getCanonicalName();
+            MockName mockName = MockUtil.getMockName(mockitoMock);
+            String mockedType = MockUtil.getMockSettings(mockitoMock).getTypeToMock().getCanonicalName();
             throw new MockitoSerializationIssue(join(
                     "The mock '" + mockName + "' of type '" + mockedType + "'",
                     "The Java Standard Serialization reported an '" + ioe.getClass().getSimpleName() + "' saying :",
@@ -167,7 +164,7 @@ class ByteBuddyCrossClassLoaderSerializationSupport implements Serializable {
 
         private static final long serialVersionUID = -7600267929109286514L;
         private final byte[] serializedMock;
-        private final Class typeToMock;
+        private final Class<?> typeToMock;
         private final Set<Class<?>> extraInterfaces;
 
         /**
@@ -188,7 +185,7 @@ class ByteBuddyCrossClassLoaderSerializationSupport implements Serializable {
             objectOutputStream.close();
             out.close();
 
-            MockCreationSettings mockSettings = new MockUtil().getMockSettings(mockitoMock);
+            MockCreationSettings<?> mockSettings = MockUtil.getMockSettings(mockitoMock);
             this.serializedMock = out.toByteArray();
             this.typeToMock = mockSettings.getTypeToMock();
             this.extraInterfaces = mockSettings.getExtraInterfaces();
@@ -247,10 +244,10 @@ class ByteBuddyCrossClassLoaderSerializationSupport implements Serializable {
      * </p>
      */
     public static class MockitoMockObjectInputStream extends ObjectInputStream {
-        private final Class typeToMock;
+        private final Class<?> typeToMock;
         private final Set<Class<?>> extraInterfaces;
 
-        public MockitoMockObjectInputStream(InputStream in, Class typeToMock, Set<Class<?>> extraInterfaces) throws IOException {
+        public MockitoMockObjectInputStream(InputStream in, Class<?> typeToMock, Set<Class<?>> extraInterfaces) throws IOException {
             super(in);
             this.typeToMock = typeToMock;
             this.extraInterfaces = extraInterfaces;
@@ -323,10 +320,8 @@ class ByteBuddyCrossClassLoaderSerializationSupport implements Serializable {
          *
          * @param marker The marker to identify.
          * @return <code>true</code> if not marked as a Mockito, <code>false</code> if the class annotation marks a Mockito mock.
-         * @throws java.io.IOException
-         * @throws ClassNotFoundException
          */
-        private boolean notMarkedAsAMockitoMock(Object marker) throws IOException, ClassNotFoundException {
+        private boolean notMarkedAsAMockitoMock(Object marker) {
             return !MOCKITO_PROXY_MARKER.equals(marker);
         }
     }
@@ -385,6 +380,6 @@ class ByteBuddyCrossClassLoaderSerializationSupport implements Serializable {
      * It will be applied before the creation of the mock when the mock setting says it should serializable.
      */
     public interface CrossClassLoaderSerializableMock {
-        Object writeReplace() throws ObjectStreamException;
+        Object writeReplace();
     }
 }

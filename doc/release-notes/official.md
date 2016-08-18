@@ -1,3 +1,403 @@
+### 2.0.106-beta (2016-08-16 10:26 UTC)
+
+* Authors: 2
+* Commits: 3
+  * 2: Brice Dutheil
+  * 1: Continuous Delivery Drone
+* Improvements: 2
+  * Fixes #554 : Checks.checkNotNull now throws IAE instead of NPE [(#560)](https://github.com/mockito/mockito/pull/560)
+  * Checks.checkNotNull should emit IllegalArgumentException instead of NPE [(#554)](https://github.com/mockito/mockito/issues/554)
+
+### 2.0.105-beta (2016-08-16 08:27 UTC)
+
+* Authors: 3
+* Commits: 3
+  * 1: Continuous Delivery Drone
+  * 1: Brice Dutheil
+  * 1: Tim van der Lippe
+* Improvements: 1
+  * Deprecate whitebox and corresponding verboserunner and junitfailureha… [(#491)](https://github.com/mockito/mockito/pull/491)
+
+### 2.0.104-beta (2016-08-16 02:45 UTC)
+
+* Authors: 2
+* Commits: 3
+  * 2: Szczepan Faber
+  * 1: Continuous Delivery Drone
+* Improvements: 2
+  * JUnit rules report unused stubs - fixes #384 [(#555)](https://github.com/mockito/mockito/pull/555)
+  * JUnit rule logs warnings about unsued / misused stubs [(#384)](https://github.com/mockito/mockito/issues/384)
+
+### 2.0.103-beta (2016-08-15 15:57 UTC)
+
+* Authors: 5
+* Commits: 5
+  * 1: Continuous Delivery Drone
+  * 1: Jeffrey Falgout
+  * 1: Marcin Zajączkowski
+  * 1: Tim van der Lippe
+  * 1: Tim van der Lippe
+* Improvements: 4
+  * Replace or remove code.google.com links in documentation [(#557)](https://github.com/mockito/mockito/pull/557)
+  * Move Mockito internal classes to internal package [(#556)](https://github.com/mockito/mockito/pull/556)
+  * Fully register a class' ancestry for GenericMetadataSupport. [(#549)](https://github.com/mockito/mockito/pull/549)
+  * DEEP_STUBS tries to mock final class [(#497)](https://github.com/mockito/mockito/issues/497)
+
+### 2.0.102-beta (2016-08-15 13:27 UTC)
+
+* Authors: 3
+* Commits: 3
+  * 1: Continuous Delivery Drone
+  * 1: Brice Dutheil
+  * 1: Christian Schwarz
+* Improvements: 2
+  * Fixed #538 changed error message in case initialization for mock injection fails. [(#550)](https://github.com/mockito/mockito/pull/550)
+  * Improve error message when @InjectMocks is uses on an interface or enum field [(#538)](https://github.com/mockito/mockito/issues/538)
+
+### 2.0.101-beta (2016-08-13 18:05 UTC)
+
+* Authors: 3
+* Commits: 4
+  * 2: Brice Dutheil
+  * 1: Continuous Delivery Drone
+  * 1: Christian Schwarz
+* Improvements: 2
+  * Uses the hosts addon in order to avoid the buffer overflow affecting … [(#553)](https://github.com/mockito/mockito/pull/553)
+  * refactored ObjectMethodsGuru to a static utility class [(#547)](https://github.com/mockito/mockito/pull/547)
+
+### 2.0.100-beta (2016-08-09 21:46 UTC)
+
+* Authors: 4
+* Commits: 5
+  * 2: Tim van der Lippe
+  * 1: Christian Schwarz
+  * 1: Marcin Zajączkowski
+  * 1: Tim van der Lippe
+* Improvements: 3
+  * inlined ArrayUtils.isEmpty() in ArgumentsProcessor [(#540)](https://github.com/mockito/mockito/pull/540)
+  * Move release skipping logic to Gradle [(#536)](https://github.com/mockito/mockito/pull/536)
+  * Code cov on releases [(#493)](https://github.com/mockito/mockito/pull/493)
+
+### 2.0.99-beta (2016-08-07 06:27 UTC)
+
+* Authors: 1
+* Commits: 1
+  * 1: Christian Schwarz
+* Improvements: 1
+  * refactored SuperTypesLastSorter to a static utility class [(#535)](https://github.com/mockito/mockito/pull/535)
+
+### 2.0.98-beta (2016-08-05 19:25 UTC)
+
+* Authors: 1
+* Commits: 1
+  * 1: David Xia
+* Improvements: 1
+  * Fix typo in Javadocs [(#532)](https://github.com/mockito/mockito/pull/532)
+
+### 2.0.97-beta (2016-08-04 10:21 UTC)
+
+* Authors: 2
+* Commits: 3
+  * 2: Rafael Winterhalter
+  * 1: Christian Schwarz
+* No notable improvements. See the commits for detailed changes.
+
+### 2.0.96-beta (2016-08-02 13:27 UTC)
+
+* Authors: 1
+* Commits: 3
+  * 3: Brice Dutheil
+* Improvements: 3
+  * Missing generics info on collection matchers [(#528)](https://github.com/mockito/mockito/pull/528)
+  * Fixes #194 tweaks any matchers [(#510)](https://github.com/mockito/mockito/pull/510)
+  * Tweaks Matchers.any family matchers behavior [(#194)](https://github.com/mockito/mockito/issues/194)
+
+### 2.0.95-beta (2016-08-01 13:48 UTC)
+
+* Authors: 2
+* Commits: 3
+  * 2: Rafael Winterhalter
+  * 1: Hans Joachim Desserud
+* Improvements: 2
+  * Add regression test for #508 [(#525)](https://github.com/mockito/mockito/pull/525)
+  * Mockito.when() fails when method could originate from superclass or interface  [(#508)](https://github.com/mockito/mockito/issues/508)
+
+### 2.0.94-beta (2016-07-31 09:17 UTC)
+
+* Authors: 3
+* Commits: 11
+  * 7: Pascal Schumacher
+  * 2: Brice Dutheil
+  * 2: Marcin Zajączkowski
+* Improvements: 9
+  * made some timeouts in VerificationAfterDelayTest and VerificationWith… [(#523)](https://github.com/mockito/mockito/pull/523)
+  * replace TestBase#assertContains(String sub, String string) with Asser… [(#519)](https://github.com/mockito/mockito/pull/519)
+  * Verify build on Travis also with Java 7 and 8 [(#518)](https://github.com/mockito/mockito/pull/518)
+  * Make ciBuild depends also on subprojects state [(#517)](https://github.com/mockito/mockito/pull/517)
+  * replace TestBase#assertNotContains(String sub, String string) with As… [(#516)](https://github.com/mockito/mockito/pull/516)
+  * refactored AllInvocationsFinder and VerifiableInvocationsFinder to st… [(#515)](https://github.com/mockito/mockito/pull/515)
+  * refactored MockUtil to a static utility class (#426) [(#514)](https://github.com/mockito/mockito/pull/514)
+  * replace TestBase#assertContainsIgnoringCase(String sub, String string… [(#513)](https://github.com/mockito/mockito/pull/513)
+  * fix some raw type warnings in tests [(#512)](https://github.com/mockito/mockito/pull/512)
+
+### 2.0.93-beta (2016-07-29 16:10 UTC)
+
+* Authors: 1
+* Commits: 12
+  * 12: Brice Dutheil
+* Improvements: 2
+  * Fixes #194 tweaks any matchers [(#510)](https://github.com/mockito/mockito/pull/510)
+  * Tweaks Matchers.any family matchers behavior [(#194)](https://github.com/mockito/mockito/issues/194)
+
+### 2.0.92-beta (2016-07-29 01:32 UTC)
+
+* Authors: 3
+* Commits: 6
+  * 3: Rafael Winterhalter
+  * 2: thesnowgoose
+  * 1: Hans Joachim Desserud
+* Improvements: 1
+  * Fix some warnings [(#511)](https://github.com/mockito/mockito/pull/511)
+
+### 2.0.91-beta (2016-07-28 01:59 UTC)
+
+* Authors: 1
+* Commits: 1
+  * 1: Rafael Winterhalter
+* Improvements: 1
+  * Mockito.when() fails when method could originate from superclass or interface  [(#508)](https://github.com/mockito/mockito/issues/508)
+
+### 2.0.90-beta (2016-07-25 18:30 UTC)
+
+* Authors: 3
+* Commits: 8
+  * 4: Brice Dutheil
+  * 3: Pascal Schumacher
+  * 1: Szczepan Faber
+* Improvements: 5
+  * Improved exception message - fixes issue 506 [(#507)](https://github.com/mockito/mockito/pull/507)
+  * Improved exception message for wanted but not invoked [(#506)](https://github.com/mockito/mockito/issues/506)
+  * refactored NonGreedyNumberOfInvocationsInOrderChecker to a static uti… [(#503)](https://github.com/mockito/mockito/pull/503)
+  * refactored ArgumentsComparator to a static utility class (#426) [(#502)](https://github.com/mockito/mockito/pull/502)
+  * refactored TestMethodsFinder to a static utility class (#426) [(#501)](https://github.com/mockito/mockito/pull/501)
+
+### 2.0.89-beta (2016-07-24 20:36 UTC)
+
+* Authors: 1
+* Commits: 1
+  * 1: Pascal Schumacher
+* Improvements: 1
+  * fixed some rawtype warnings [(#504)](https://github.com/mockito/mockito/pull/504)
+
+### 2.0.88-beta (2016-07-24 16:50 UTC)
+
+* Authors: 1
+* Commits: 54
+  * 54: Szczepan Faber
+* No notable improvements. See the commits for detailed changes.
+
+### 2.0.87-beta (2016-07-18 20:28 UTC)
+
+* Authors: 1
+* Commits: 1
+  * 1: Pascal Schumacher
+* Improvements: 1
+  * remove unused imports [(#498)](https://github.com/mockito/mockito/pull/498)
+
+### 2.0.86-beta (2016-07-12 11:59 UTC)
+
+* Authors: 1
+* Commits: 2
+  * 2: Brice Dutheil
+* Improvements: 1
+  * Moves Reporter friendly exception factory to internal package [(#495)](https://github.com/mockito/mockito/pull/495)
+
+### 2.0.85-beta (2016-07-12 11:43 UTC)
+
+* Authors: 1
+* Commits: 2
+  * 2: Brice Dutheil
+* Improvements: 1
+  * Renames Matchers to ArgumentMatchers to avoid name clash with Hamcrest Matchers class [(#496)](https://github.com/mockito/mockito/pull/496)
+
+### 2.0.84-beta (2016-07-11 15:08 UTC)
+
+* Authors: 2
+* Commits: 2
+  * 1: Brice Dutheil
+  * 1: Christian Schwarz
+* Improvements: 1
+  * refactored ThreadSafeMockingProgress to a singleton [(#476)](https://github.com/mockito/mockito/pull/476)
+
+### 2.0.83-beta (2016-07-11 13:21 UTC)
+
+* Authors: 3
+* Commits: 3
+  * 1: Christian Schwarz
+  * 1: Brice Dutheil
+  * 1: Tim van der Lippe
+* Improvements: 2
+  * Revert "Remove deprecated method" [(#492)](https://github.com/mockito/mockito/pull/492)
+  * Cleanup: removed dead/unnecessary classes [(#486)](https://github.com/mockito/mockito/pull/486)
+
+### 2.0.82-beta (2016-07-07 16:55 UTC)
+
+* Authors: 2
+* Commits: 2
+  * 1: Rafael Winterhalter
+  * 1: Tim van der Lippe
+* Improvements: 1
+  * Clean up issues reported by IntelliJ [(#436)](https://github.com/mockito/mockito/pull/436)
+
+### 2.0.81-beta (2016-07-06 20:41 UTC)
+
+* Authors: 2
+* Commits: 3
+  * 2: Rafael Winterhalter
+  * 1: Tim van der Lippe
+* Improvements: 1
+  * Exclude mockito internal packages from the Javadoc [(#481)](https://github.com/mockito/mockito/pull/481)
+
+### 2.0.80-beta (2016-07-05 15:03 UTC)
+
+* Authors: 1
+* Commits: 1
+  * 1: Tim van der Lippe
+* Improvements: 1
+  * Stubbing with some AdditionalMatchers can NPE with null actuals [(#457)](https://github.com/mockito/mockito/issues/457)
+
+### 2.0.79-beta (2016-07-03 21:19 UTC)
+
+* Authors: 1
+* Commits: 1
+  * 1: Pascal Schumacher
+* Improvements: 1
+  * fix grammar of sentence in Mockito javadoc [(#479)](https://github.com/mockito/mockito/pull/479)
+
+### 2.0.78-beta (2016-07-01 15:21 UTC)
+
+* Authors: 1
+* Commits: 1
+  * 1: Rafael Winterhalter
+* No notable improvements. See the commits for detailed changes.
+
+### 2.0.77-beta (2016-06-30 15:55 UTC)
+
+* Authors: 2
+* Commits: 2
+  * 1: Krzysztof Wolny
+  * 1: Rafael Winterhalter
+* Improvements: 1
+  * Typo fix [(#475)](https://github.com/mockito/mockito/pull/475)
+
+### 2.0.76-beta (2016-06-28 09:39 UTC)
+
+* Authors: 1
+* Commits: 1
+  * 1: Rafael Winterhalter
+* No notable improvements. See the commits for detailed changes.
+
+### 2.0.74-beta (2016-06-28 09:29 UTC)
+
+* Authors: 1
+* Commits: 4
+  * 4: Rafael Winterhalter
+* Improvements: 3
+  * Reference correct types for multiple parent class loader if user class and Mockito are loaded by different loaders (e.g. OSGi) [(#471)](https://github.com/mockito/mockito/pull/471)
+  * Refactored mock cache to be non-blocking. [(#470)](https://github.com/mockito/mockito/pull/470)
+  * OSGi metadata is incorrect [(#385)](https://github.com/mockito/mockito/issues/385)
+
+### 2.0.73-beta (2016-06-26 22:16 UTC)
+
+* Authors: 2
+* Commits: 3
+  * 2: Christian Schwarz
+  * 1: Rafael Winterhalter
+* Improvements: 1
+  * refactored InvocationsFinder to static utility class [(#462)](https://github.com/mockito/mockito/pull/462)
+
+### 2.0.72-beta (2016-06-26 16:00 UTC)
+
+* Authors: 2
+* Commits: 11
+  * 7: Pascal Schumacher
+  * 4: Rafael Winterhalter
+* Improvements: 8
+  * fix some rawtype warnings in tests [(#469)](https://github.com/mockito/mockito/pull/469)
+  * add missing since javadoc tags for recently added methods and classes… [(#468)](https://github.com/mockito/mockito/pull/468)
+  * fix some rawtype warnings in tests [(#467)](https://github.com/mockito/mockito/pull/467)
+  * fix some rawtype warnings in tests [(#464)](https://github.com/mockito/mockito/pull/464)
+  * delete disabled test for removed objenesis missing reporting feature [(#460)](https://github.com/mockito/mockito/pull/460)
+  * fix some rawtype warnings in tests [(#459)](https://github.com/mockito/mockito/pull/459)
+  * remove dead code in ClassCacheVersusClassReloadingTest [(#458)](https://github.com/mockito/mockito/pull/458)
+  * Changes to InvocationOnMock API should include version info [(#420)](https://github.com/mockito/mockito/issues/420)
+
+### 2.0.71-beta (2016-06-23 09:28 UTC)
+
+* Authors: 3
+* Commits: 4
+  * 2: Pascal Schumacher
+  * 1: Christian Schwarz
+  * 1: Rafael Winterhalter
+* Improvements: 3
+  * fix some rawtype warnings [(#456)](https://github.com/mockito/mockito/pull/456)
+  * activate VerificationWithTimeoutTest#shouldAllowTimeoutVerificationIn… [(#455)](https://github.com/mockito/mockito/pull/455)
+  * Refactored Timeout and After concurrent test [(#451)](https://github.com/mockito/mockito/pull/451)
+
+### 2.0.70-beta (2016-06-21 09:16 UTC)
+
+* Authors: 1
+* Commits: 1
+  * 1: ashleyfrieze
+* Improvements: 1
+  * Modified JavaDoc for ArgumentMatcher [(#454)](https://github.com/mockito/mockito/pull/454)
+
+### 2.0.69-beta (2016-06-19 22:57 UTC)
+
+* Authors: 1
+* Commits: 6
+  * 6: Rafael Winterhalter
+* No notable improvements. See the commits for detailed changes.
+
+### 2.0.67-beta (2016-06-19 21:59 UTC)
+
+* Authors: 2
+* Commits: 13
+  * 11: Rafael Winterhalter
+  * 2: Pascal Schumacher
+* Improvements: 2
+  * javadoc: improve grammar of some sentences [(#452)](https://github.com/mockito/mockito/pull/452)
+  * speedup travis build a bit by downloading gradle-bin instead of gradl… [(#371)](https://github.com/mockito/mockito/pull/371)
+
+### 2.0.65-beta (2016-06-19 19:52 UTC)
+
+* Authors: 2
+* Commits: 3
+  * 2: Rafael Winterhalter
+  * 1: Alberto Scotto
+* Improvements: 1
+  * BDDMockito: rename willNothing to willDoNothing [(#419)](https://github.com/mockito/mockito/pull/419)
+
+### 2.0.64-beta (2016-06-19 16:54 UTC)
+
+* Authors: 4
+* Commits: 17
+  * 9: Rafael Winterhalter
+  * 5: Pascal Schumacher
+  * 2: Tim van der Lippe
+  * 1: Jazzepi
+* Improvements: 10
+  * update objenesis version to 2.4 [(#447)](https://github.com/mockito/mockito/pull/447)
+  * Make tests which test for timeouts with Thread#sleep more lenient. [(#446)](https://github.com/mockito/mockito/pull/446)
+  * Add PARAMETER ElementType to @Mock [(#444)](https://github.com/mockito/mockito/pull/444)
+  * downgrade assertj-core version to 1.7.1 because this version is java … [(#443)](https://github.com/mockito/mockito/pull/443)
+  * enable some ignored tests of BridgeMethodsHitAgainTest and DetectingF… [(#442)](https://github.com/mockito/mockito/pull/442)
+  * delete ignored cglib related tests [(#441)](https://github.com/mockito/mockito/pull/441)
+  * PluginStackTraceFilteringTest failing locally [(#435)](https://github.com/mockito/mockito/issues/435)
+  * Inorder timeouts [(#424)](https://github.com/mockito/mockito/pull/424)
+  * Functional interfaces for Java 8 support in Mockito 2 [(#338)](https://github.com/mockito/mockito/pull/338)
+  * Introduce functional interfaces to improve Java 8 utilisation of Mockito 2 [(#337)](https://github.com/mockito/mockito/issues/337)
+
 ### 2.0.62-beta (2016-06-17 12:26 UTC)
 
 * Authors: 1

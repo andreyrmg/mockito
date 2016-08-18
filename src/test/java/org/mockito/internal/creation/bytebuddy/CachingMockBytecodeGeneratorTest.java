@@ -1,17 +1,19 @@
 package org.mockito.internal.creation.bytebuddy;
 
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.Assume.assumeTrue;
-import static org.mockito.internal.creation.bytebuddy.MockFeatures.withMockFeatures;
-import static org.mockitoutil.ClassLoaders.inMemoryClassLoader;
-import static org.mockitoutil.SimpleClassGenerator.makeMarkerInterface;
+import org.junit.Before;
+import org.junit.Test;
+
 import java.lang.management.ManagementFactory;
 import java.lang.ref.WeakReference;
 import java.util.Collections;
 import java.util.List;
 import java.util.WeakHashMap;
-import org.junit.Before;
-import org.junit.Test;
+
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.Assume.assumeTrue;
+import static org.mockito.internal.creation.bytebuddy.MockFeatures.withMockFeatures;
+import static org.mockitoutil.ClassLoaders.inMemoryClassLoader;
+import static org.mockitoutil.SimpleClassGenerator.makeMarkerInterface;
 
 public class CachingMockBytecodeGeneratorTest {
 
@@ -27,12 +29,12 @@ public class CachingMockBytecodeGeneratorTest {
                 .withClassDefinition("foo.Bar", makeMarkerInterface("foo.Bar"))
                 .build();
 
-        CachingMockBytecodeGenerator cachingMockBytecodeGenerator = new CachingMockBytecodeGenerator();
+        CachingMockBytecodeGenerator cachingMockBytecodeGenerator = new CachingMockBytecodeGenerator(true);
         Class<?> the_mock_type = cachingMockBytecodeGenerator.get(withMockFeatures(
-                        classloader_with_life_shorter_than_cache.loadClass("foo.Bar"),
-                        Collections.<Class<?>>emptySet(),
-                        false
-                ));
+                classloader_with_life_shorter_than_cache.loadClass("foo.Bar"),
+                Collections.<Class<?>>emptySet(),
+                false
+        ));
 
         assertThat(cachingMockBytecodeGenerator.avoidingClassLeakageCache).hasSize(1);
 
@@ -43,8 +45,46 @@ public class CachingMockBytecodeGeneratorTest {
         System.gc();
         ensure_gc_happened();
 
+        cachingMockBytecodeGenerator.cleanUpCachesForObsoleteClassLoaders();
+
         // then
         assertThat(cachingMockBytecodeGenerator.avoidingClassLeakageCache).isEmpty();
+    }
+
+    @Test
+    public void ensure_cache_returns_same_instance() throws Exception {
+        // given
+        ClassLoader classloader_with_life_shorter_than_cache = inMemoryClassLoader()
+                .withClassDefinition("foo.Bar", makeMarkerInterface("foo.Bar"))
+                .build();
+
+        CachingMockBytecodeGenerator cachingMockBytecodeGenerator = new CachingMockBytecodeGenerator(true);
+        Class<?> the_mock_type = cachingMockBytecodeGenerator.get(withMockFeatures(
+                        classloader_with_life_shorter_than_cache.loadClass("foo.Bar"),
+                        Collections.<Class<?>>emptySet(),
+                        false
+                ));
+
+        Class<?> other_mock_type = cachingMockBytecodeGenerator.get(withMockFeatures(
+                classloader_with_life_shorter_than_cache.loadClass("foo.Bar"),
+                Collections.<Class<?>>emptySet(),
+                false
+        ));
+
+        assertThat(other_mock_type).isSameAs(the_mock_type);
+        assertThat(cachingMockBytecodeGenerator.avoidingClassLeakageCache).hasSize(1);
+
+        // when
+        classloader_with_life_shorter_than_cache = is_no_more_referenced();
+        the_mock_type = is_no_more_referenced();
+
+        System.gc();
+        ensure_gc_happened();
+
+        cachingMockBytecodeGenerator.cleanUpCachesForObsoleteClassLoaders();
+
+        // then
+        assertThat(cachingMockBytecodeGenerator.avoidingClassLeakageCache).hasSize(1);
     }
 
     @Test
@@ -55,7 +95,7 @@ public class CachingMockBytecodeGeneratorTest {
                 .withClassDefinition("foo.Bar", makeMarkerInterface("foo.Bar"))
                 .build();
 
-        cache.put(short_lived_classloader, new HoldingAReference(new WeakReference<Class>(short_lived_classloader.loadClass("foo.Bar"))));
+        cache.put(short_lived_classloader, new HoldingAReference(new WeakReference<Class<?>>(short_lived_classloader.loadClass("foo.Bar"))));
 
         assertThat(cache).hasSize(1);
 
@@ -70,9 +110,9 @@ public class CachingMockBytecodeGeneratorTest {
     }
 
     static class HoldingAReference {
-        final WeakReference<Class> a;
+        final WeakReference<Class<?>> a;
 
-        HoldingAReference(WeakReference<Class> a) {
+        HoldingAReference(WeakReference<Class<?>> a) {
             this.a = a;
         }
     }
@@ -88,7 +128,7 @@ public class CachingMockBytecodeGeneratorTest {
             if (inputArgument.contains("-XX:+DisableExplicitGC")) {
                 return false;
             }
-        };
+        }
         return true;
     }
 

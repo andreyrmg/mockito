@@ -4,12 +4,11 @@
  */
 package org.mockito.internal.stubbing.answers;
 
-import org.mockito.exceptions.Reporter;
 import org.mockito.invocation.InvocationOnMock;
 import org.mockito.stubbing.Answer;
 
-import static org.mockito.exceptions.Reporter.invalidArgumentPositionRangeAtInvocationTime;
-import static org.mockito.exceptions.Reporter.invalidArgumentRangeAtIdentityAnswerCreationTime;
+import static org.mockito.internal.exceptions.Reporter.invalidArgumentPositionRangeAtInvocationTime;
+import static org.mockito.internal.exceptions.Reporter.invalidArgumentRangeAtIdentityAnswerCreationTime;
 
 import java.io.Serializable;
 
@@ -95,7 +94,7 @@ public class ReturnsArgumentAt implements Answer<Object>, Serializable {
         return true;
     }
 
-    public Class returnedTypeOnSignature(InvocationOnMock invocation) {
+    public Class<?> returnedTypeOnSignature(InvocationOnMock invocation) {
         int actualArgumentPosition = actualArgumentPosition(invocation);
 
         if(!invocation.getMethod().isVarArgs()) {
